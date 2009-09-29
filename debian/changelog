@@ -1,3 +1,9 @@
+libept (0.5.30) unstable; urgency=low
+
+  * Priority: important
+
+ -- Enrico Zini <enrico@debian.org>  Tue, 29 Sep 2009 19:13:39 +0100
+
 libept (0.5.29) unstable; urgency=low
 
   * Disabled graphviz-generated class diagrams in the documentation, and
