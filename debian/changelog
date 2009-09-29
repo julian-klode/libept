@@ -7,8 +7,10 @@ libept (0.5.29) unstable; urgency=low
   * Removed workaround for #487406 on arm. Closes: #533793
   * Removed workaround for #459207 on cmake 2.4, and depend on cmake 2.6.
     Closes: #493200
+  * Fixed cron job. Closes: #502608
+    Thanks Frans Pop.
 
- -- Enrico Zini <enrico@debian.org>  Tue, 29 Sep 2009 15:09:47 +0100
+ -- Enrico Zini <enrico@debian.org>  Tue, 29 Sep 2009 15:29:32 +0100
 
 libept (0.5.28) unstable; urgency=low
 
