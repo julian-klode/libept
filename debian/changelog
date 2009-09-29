@@ -1,5 +1,7 @@
 libept (0.5.29) unstable; urgency=low
 
+  * Disabled graphviz-generated class diagrams in the documentation, and
+    removed build-dependency on graphviz. Closes: #524604
   * Added missing const. Closes: #547421
     Thanks Stefan Potyra.
 
