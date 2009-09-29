@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Update the data and index files of Debtags
+test -x /usr/bin/ept-cache && /usr/bin/ept-cache reindex --quiet

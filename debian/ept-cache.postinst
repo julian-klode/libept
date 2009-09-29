@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "configure" ]; then
+	if [ -d /var/lib/apt-xapian ]; then
+		echo "Removing old index /var/lib/apt-xapian..."
+		rm -r /var/lib/apt-xapian
+	fi
+fi
+
+#DEBHELPER#
