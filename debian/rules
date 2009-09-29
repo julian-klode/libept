@@ -7,16 +7,6 @@ include /usr/share/cdbs/1/class/cmake.mk
 
 
 DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
-ifeq ($(DEB_HOST_ARCH),arm)
-# TODO workaround for g++ breakage on arm; debian bug #487406
-export CC=gcc-4.2
-export CXX=g++-4.2
-else
-# TODO workaround for cmake breakage; debian bug #459207
-export CXX = /usr/bin/g++
-export CC = /usr/bin/gcc
-endif
-
 
 DEB_MAKE_CHECK_TARGET := unit
 
