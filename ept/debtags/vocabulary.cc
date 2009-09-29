@@ -189,7 +189,7 @@ void Vocabulary::parseVocBuf(std::map<std::string, std::string>& res, size_t ofs
 std::string Vocabulary::tagShortName(int id) const
 {
 	const char* fullname = tindex.name(id);
-	char* sub = strstr(fullname, "::");
+	const char* sub = strstr(fullname, "::");
 	if (sub != NULL)
 		return sub + 2;
 	else

@@ -1,3 +1,10 @@
+libept (0.5.29) unstable; urgency=low
+
+  * Added missing const. Closes: #547421
+    Thanks Stefan Potyra.
+
+ -- Enrico Zini <enrico@debian.org>  Tue, 29 Sep 2009 15:09:47 +0100
+
 libept (0.5.28) unstable; urgency=low
 
   * Removed adept-specific code. Closes: #540209.
