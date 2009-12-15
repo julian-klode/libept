@@ -5,6 +5,8 @@ Maintainer: Enrico Zini <enrico@debian.org>
 Uploaders: Petr Rockai <mornfall@debian.org>
 Build-Depends: cdbs, debhelper (>> 5), dh-buildinfo, doxygen, libapt-pkg-dev (>= 0.6.46.1), libwibble-dev (>= 0.1.24), libwibble-dev (<< 0.2), libtagcoll2-dev (>= 2.0.6), libtagcoll2-dev (<< 2.1), pkg-config, libxapian-dev (>= 1.0.5), cmake (>= 2.6)
 Standards-Version: 3.8.3.0
+Vcs-Git: git://git.debian.org/git/debtags/libept.git
+Vcs-Browser: http://git.debian.org/?p=debtags/libept.git
 
 Package: libept-dev
 Section: libdevel

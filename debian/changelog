@@ -2,6 +2,7 @@ libept (0.5.30) unstable; urgency=low
 
   * Priority: important
   * Depend on newer libwibble-dev. Closes: #560508
+  * Added Vcs-* headers
 
  -- Enrico Zini <enrico@debian.org>  Tue, 15 Dec 2009 18:05:05 +0000
 
