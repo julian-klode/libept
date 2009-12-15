@@ -33,6 +33,7 @@
 #include <wibble/operators.h>
 
 #include <ept/test.h>
+#include <cstdio>
 
 #ifndef EPT_DEBTAGS_TESTH
 #define EPT_DEBTAGS_TESTH

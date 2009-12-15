@@ -2,6 +2,7 @@
 #include <ept/debtags/vocabulary.h>
 #include <ept/debtags/maint/vocabularymerger.h>
 #include <ept/debtags/maint/path.h>
+#include <cstdio>
 
 namespace ept {
 namespace debtags {
