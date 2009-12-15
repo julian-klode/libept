@@ -1,8 +1,9 @@
 libept (0.5.30) unstable; urgency=low
 
   * Priority: important
+  * Depend on newer libwibble-dev. Closes: #560508
 
- -- Enrico Zini <enrico@debian.org>  Tue, 29 Sep 2009 19:13:39 +0100
+ -- Enrico Zini <enrico@debian.org>  Tue, 15 Dec 2009 18:05:05 +0000
 
 libept (0.5.29) unstable; urgency=low
 
