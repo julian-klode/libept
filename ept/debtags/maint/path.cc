@@ -95,42 +95,17 @@ std::string Path::vocabulary() {
 	return str::joinpath(debtagsIndexDir(), "vocabulary");
 }
 
-std::string Path::vocabularyIndex() {
-	return str::joinpath(debtagsIndexDir(), "vocabulary.idx");
-}
-
 std::string Path::userVocabulary() {
 	return str::joinpath(debtagsUserIndexDir(), "vocabulary");
-}
-
-std::string Path::userVocabularyIndex() {
-	return str::joinpath(debtagsUserIndexDir(), "vocabulary.idx");
 }
 
 std::string Path::tagdb() {
 	return str::joinpath(debtagsIndexDir(), "package-tags");
 }
 
-std::string Path::tagdbIndex() {
-	return str::joinpath(debtagsIndexDir(), "package-tags.idx");
-}
-
 std::string Path::userTagdb() {
 	return str::joinpath(debtagsUserIndexDir(), "package-tags");
 }
-
-std::string Path::userTagdbIndex() {
-	return str::joinpath(debtagsUserIndexDir(), "package-tags.idx");
-}
-
-std::string Path::pkgidx() {
-	return str::joinpath(debtagsIndexDir(), "pkgidx.idx");
-}
-
-std::string Path::userPkgidx() {
-	return str::joinpath(debtagsUserIndexDir(), "pkgidx.idx");
-}
-
 
 Path *Path::s_instance = 0;
 

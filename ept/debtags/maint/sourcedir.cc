@@ -91,7 +91,7 @@ time_t SourceDir::tagTimestamp()
 	return max;
 }
 
-void SourceDir::readVocabularies(VocabularyMerger& out)
+void SourceDir::readVocabularies(Vocabulary& out)
 {
 	if (!valid()) return;
 

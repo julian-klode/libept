@@ -64,7 +64,7 @@ public:
 	 * Read the vocabulary files in the directory and output their content to
 	 * out
 	 */
-	void readVocabularies(VocabularyMerger& out);
+	void readVocabularies(Vocabulary& out);
 };
 
 }

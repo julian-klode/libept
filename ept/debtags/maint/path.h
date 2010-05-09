@@ -38,15 +38,9 @@ class Path
 {
 public:
 	static std::string vocabulary();
-	static std::string vocabularyIndex();
 	static std::string userVocabulary();
-	static std::string userVocabularyIndex();
 	static std::string tagdb();
-	static std::string tagdbIndex();
 	static std::string userTagdb();
-	static std::string userTagdbIndex();
-	static std::string pkgidx();
-	static std::string userPkgidx();
 
 	static std::string debtagsSourceDir();
 	static std::string debtagsIndexDir();
