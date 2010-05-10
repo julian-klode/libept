@@ -21,12 +21,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <ept/debtags/debtags.h>
 #include <string>
 
 namespace ept {
 namespace apt {
 class Apt;
+}
+namespace debtags {
+class Debtags;
+class Vocabulary;
 }
 namespace popcon {
 class Popcon;
@@ -45,6 +48,9 @@ protected:
 
 	/// Debtags data provider
 	ept::debtags::Debtags* m_debtags;
+
+	/// Debtags vocabulary data provider
+	ept::debtags::Vocabulary* m_vocabulary;
 
 	/// Popcon data provider
 	ept::popcon::Popcon* m_popcon;
@@ -80,7 +86,7 @@ public:
 	ept::debtags::Debtags& debtags() { return *m_debtags; }
 
 	/// Access the tag vocabulary
-	ept::debtags::Vocabulary& voc() { return m_debtags->vocabulary(); }
+	ept::debtags::Vocabulary& voc() { return *m_vocabulary; }
 
 	/// Access the popcon data
 	ept::popcon::Popcon& popcon() { return *m_popcon; }

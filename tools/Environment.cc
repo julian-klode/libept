@@ -22,6 +22,7 @@
 
 #include <ept/apt/apt.h>
 #include <ept/debtags/debtags.h>
+#include <ept/debtags/vocabulary.h>
 #include <ept/popcon/popcon.h>
 #include <ept/popcon/local.h>
 #include <ept/textsearch/textsearch.h>
@@ -50,6 +51,7 @@ void Environment::init(bool editable)
 {
 	m_apt = new ept::apt::Apt;
 	m_debtags = new ept::debtags::Debtags(editable);
+	m_vocabulary = new ept::debtags::Vocabulary;
 	m_popcon = new ept::popcon::Popcon;
 	m_popconlocal = new ept::popcon::Local;
 	m_textsearch = new ept::textsearch::TextSearch;

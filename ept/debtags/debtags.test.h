@@ -51,8 +51,6 @@ struct TestDebtags : DebtagsTestEnvironment
 
     TestDebtags() {}
 
-	Vocabulary& voc() { return debtags.vocabulary(); }
-
 	Test _1() {
 		for (Debtags::const_iterator i = debtags.begin(); i != debtags.end(); ++i)
 		{

@@ -26,10 +26,9 @@
 #ifndef EPT_DEBTAGS_DEBTAGS_H
 #define EPT_DEBTAGS_DEBTAGS_H
 
-#include <ept/debtags/vocabulary.h>
-
 #include <tagcoll/coll/base.h>
 #include <tagcoll/coll/fast.h>
+#include <string>
 
 namespace ept {
 namespace debtags {
@@ -55,9 +54,6 @@ namespace debtags {
 class Debtags : public tagcoll::coll::Fast<std::string, std::string>
 {
 protected:
-	// Tag vocabulary
-	Vocabulary m_voc;
-
 	// User rc directory to store patches
 	std::string rcdir;
 
@@ -114,25 +110,6 @@ public:
 #if 0
 	ItemSet getTaggedItems() const;
 #endif
-
-	/// Access the vocabulary in use
-	Vocabulary& vocabulary() { return m_voc; }
-	/// Access the vocabulary in use
-	const Vocabulary& vocabulary() const { return m_voc; }
-
-#if 0
-	template<typename OUT>
-	void output(OUT out) const
-	{
-		for (const_iterator i = begin(); i != end(); ++i)
-		{
-			*out = *i;
-			++out;
-		}
-	}
-#endif
-
-
 
 	/**
 	 * Check if the tag database has been created (i.e. if something

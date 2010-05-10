@@ -24,6 +24,7 @@
 
 #include <ept/apt/apt.h>
 #include <ept/apt/packagerecord.h>
+#include <ept/debtags/debtags.h>
 #include <ept/popcon/popcon.h>
 #include <ept/popcon/local.h>
 
