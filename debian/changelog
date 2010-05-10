@@ -6,8 +6,9 @@ libept (1.0) unstable; urgency=low
   * Breaks API and ABI: bump major version
   * Replaced textindex with axi, which contains just a handful of helper
     functions to handle apt-xapian-index
+  * ept-cache superseded by axi-cache
 
- -- Enrico Zini <enrico@debian.org>  Mon, 10 May 2010 17:49:17 +0100
+ -- Enrico Zini <enrico@debian.org>  Mon, 10 May 2010 18:47:39 +0100
 
 libept (0.5.30) unstable; urgency=low
 

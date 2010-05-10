@@ -45,16 +45,11 @@ Description: High-level library for managing Debian package information
  This is the shared library.
 
 Package: ept-cache
-Architecture: any
+Architecture: all
 Section: misc
-Depends: ${shlibs:Depends}, ${misc:Depends}, apt-xapian-index (>= 0.5)
+Depends: ${shlibs:Depends}, ${misc:Depends}, apt-xapian-index (>= 0.30)
 Recommends: debtags
-Description: Commandline tool to search the package archive
- ept-cache is a simple commandline interface to the functions of libept.
+Description: Obsolete commandline tool to search the package archive
+ ept-cache has been superseded by axi-cache, provided by apt-xapian-index.
  .
- It can currently search and display data from four sources:
- .
-  * The APT database
-  * The Debtags tag information
-  * Popcon package scores
-  * The Xapian index built by apt-xapian-index
+ This package provides a dummy ept-cache script that just call axi-cache.
