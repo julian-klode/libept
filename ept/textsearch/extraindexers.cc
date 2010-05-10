@@ -44,10 +44,10 @@ void AptTagsExtraIndexer::operator()(Xapian::Document& doc, const apt::PackageRe
 void DebtagsExtraIndexer::operator()(Xapian::Document& doc, const apt::PackageRecord& rec) const
 {
 	// Index tags as well
-	set<Tag> tags = debtags.getTagsOfItem(doc.get_data());
-	for (set<Tag>::const_iterator ti = tags.begin();
+	set<std::string> tags = debtags.getTagsOfItem(doc.get_data());
+	for (set<std::string>::const_iterator ti = tags.begin();
 			ti != tags.end(); ++ti)
-		doc.add_term("XT"+ti->fullname());
+		doc.add_term("XT"+*ti);
 }
 
 }

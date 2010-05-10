@@ -27,8 +27,10 @@
 #define EPT_DEBTAGS_DEBTAGS_TCC
 
 #include <ept/debtags/debtags.h>
-#include <ept/debtags/maint/serializer.h>
+#include <ept/debtags/maint/path.h>
+#include <ept/debtags/maint/sourcedir.h>
 
+#include <tagcoll/coll/simple.h>
 #include <tagcoll/input/stdio.h>
 #include <tagcoll/stream/patcher.h>
 #include <tagcoll/TextFormat.h>
@@ -39,8 +41,15 @@ namespace debtags {
 template<typename OUT>
 void Debtags::outputSystem(const OUT& cons)
 {
-	m_rocoll.output(intToPkg(m_pkgid, vocabulary(), cons));
+	// Read and merge tag data
+	SourceDir mainSource(Path::debtagsSourceDir());
+	SourceDir userSource(Path::debtagsUserSourceDir());
+	tagcoll::coll::Simple<string, string> merged;
+	mainSource.readTags(inserter(merged));
+	userSource.readTags(inserter(merged));
+	merged.output(cons);
 }
+
 
 template<typename OUT>
 void Debtags::outputSystem(const std::string& filename, const OUT& out)
@@ -48,41 +57,44 @@ void Debtags::outputSystem(const std::string& filename, const OUT& out)
 	if (filename == "-")
 	{
 		tagcoll::input::Stdio input(stdin, "<stdin>");
-		tagcoll::textformat::parse(input, ept::debtags::stringToPkg(m_pkgid, m_voc, out));
+		tagcoll::textformat::parse(input, out);
 	}
 	else
 	{
 		tagcoll::input::Stdio input(filename);
-		tagcoll::textformat::parse(input, ept::debtags::stringToPkg(m_pkgid, m_voc, out));
+		tagcoll::textformat::parse(input, out);
 	}
 }
 
 template<typename OUT>
 void Debtags::outputPatched(const OUT& cons)
 {
-	m_coll.output(intToPkg(m_pkgid, vocabulary(), cons));
+	output(cons);
 }
 
 template<typename OUT>
 void Debtags::outputPatched(const std::string& filename, const OUT& out)
 {
-	const tagcoll::PatchList<string, Tag>& patch = m_coll.changes();
+	const tagcoll::PatchList<string, string>& patch = changes();
 	if (filename == "-")
 	{
 		tagcoll::input::Stdio input(stdin, "<stdin>");
-		tagcoll::textformat::parse(input, ept::debtags::stringToPkg(m_pkgid, m_voc, patcher(patch, out)));
+		tagcoll::textformat::parse(input, patcher(patch, out));
 	}
 	else
 	{
 		tagcoll::input::Stdio input(filename);
-		tagcoll::textformat::parse(input, ept::debtags::stringToPkg(m_pkgid, m_voc, patcher(patch, out)));
+		tagcoll::textformat::parse(input, patcher(patch, out));
 	}
 }
 
 }
 }
 
-#include <tagcoll/coll/patched.tcc>
+#include <ept/debtags/maint/sourcedir.tcc>
+#include <tagcoll/coll/simple.tcc>
+#include <tagcoll/coll/fast.tcc>
+#include <tagcoll/patch.tcc>
 
 #endif
 

@@ -24,11 +24,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <ept/debtags/tag.h>
-#include <tagcoll/diskindex/mmap.h>
-
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 
 namespace tagcoll {
@@ -41,23 +39,106 @@ namespace ept {
 namespace debtags {
 namespace voc {
 
-class TagData : public std::map<std::string, std::string>
+/// Base class for facet and tag data
+struct Data : public std::map<std::string, std::string>
 {
+protected:
+	// Cache the parsed short description
+	mutable std::string m_desc;
+
 public:
 	std::string name;
 
-	TagData() {}
+	/**
+	 * Return the short description of the tag
+	 * @throws std::out_of_range if the tag is not valid
+	 */
+	std::string shortDescription() const;
+
+	/**
+	 * Return the long description of the tag
+	 *
+	 * @throws std::out_of_range if the tag is not valid
+	 */
+	std::string longDescription() const;
 };
 
-class FacetData : public std::map<std::string, std::string>
+/**
+ * Representation of a tag.
+ *
+ * ept::debtags::Tag represents a Tag with all its informations.
+ * It is guaranteed to have fast value-copy semantics, so it can be passed
+ * around freely and efficiently without worrying about memory management
+ * issues.
+ *
+ * The class is normally instantiated using a Vocabulary:
+ * \code
+ * 	Tag tag = vocabulary.tagByName("made-of::lang:c++");
+ * \endcode
+ *
+ * Tags can contain an "invalid" value, in which case using any of their
+ * methods will likely produce segfault.  The "invalid" facets are useful as
+ * "none" return values:
+ *
+ * \code
+ *    Tag tag = vocabulary.tagByName("made-of");
+ *    if (!tag)
+ *       throw SomeException("tag \"mytag\" has not been defined");
+ * \endcode
+ */
+struct TagData : public Data
+{
+	TagData() {}
+
+	// Facet facet() const;
+};
+
+/**
+ * Representation of a facet.
+ *
+ * ept::debtags::Facet represents a Facet with all its informations.
+ * It is guaranteed to have fast value-copy semantics, so it can be passed
+ * around freely and efficiently without worrying about memory management
+ * issues.
+ *
+ * The class is normally instantiated using a Vocabulary:
+ * \code
+ * 	Facet facet = vocabulary.faceByName("made-of");
+ * \endcode
+ *
+ * Facets can contain an "invalid" value, in which case using any of their
+ * methods will likely produce segfault.  The "invalid" facets are useful as
+ * "none" return values:
+ *
+ * \code
+ *    Facet facet = vocabulary.facetByName("made-of");
+ *    if (!facet)
+ *       throw SomeException("facet \"made-of\" has not been defined");
+ * \endcode
+ */
+class FacetData : public Data
 {
 public:
-	std::string name;
-	std::map<std::string, TagData> tags;
+	std::map<std::string, TagData> m_tags;
 
 	FacetData() {}
 
 	TagData& obtainTag(const std::string& fullname);
+
+	/**
+	 * Return true if the facet has a tag with the given name (name, not fullname)
+	 */
+	bool hasTag(const std::string& name) const;
+
+	/**
+	 * Return the tag data for the given tag, or 0 if not found
+	 */
+	const TagData* tagData(const std::string& name) const;
+
+	/**
+	 * Return the list of tags in this facet
+	 */
+	std::set<std::string> tags() const;
 };
 
 }

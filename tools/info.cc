@@ -1,7 +1,7 @@
 /*
  * ept-cache - Commandline interface to the ept library
  *
- * Copyright (C) 2007  Enrico Zini <enrico@debian.org>
+ * Copyright (C) 2007--2010  Enrico Zini <enrico@debian.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +101,7 @@ void Info::wantTags()
 		set<string> stags = record->tag();
 		for (set<string>::const_iterator i = stags.begin();
 				i != stags.end(); ++i)
-			tags.insert(env().voc().tagByName(*i));
+			tags.insert(*i);
 	}
 	has_tags = true;
 }

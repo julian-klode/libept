@@ -25,9 +25,10 @@
 
 #include <ept/debtags/debtags.h>
 #include <ept/debtags/maint/path.h>
-#include <ept/debtags/maint/serializer.h>
-#include <ept/debtags/maint/debtagsindexer.h>
+#include <ept/debtags/maint/sourcedir.h>
 
+#include <tagcoll/patch.h>
+#include <tagcoll/coll/simple.h>
 #include <tagcoll/input/stdio.h>
 #include <tagcoll/TextFormat.h>
 
@@ -52,24 +53,17 @@ namespace ept {
 namespace debtags {
 
 Debtags::Debtags(bool editable)
-	: m_coll(m_rocoll)
 {
-	std::string tagfname;
-	std::string idxfname;
+	// Read and merge tag data
+	SourceDir mainSource(Path::debtagsSourceDir());
+	SourceDir userSource(Path::debtagsUserSourceDir());
 
-	if (!DebtagsIndexer::obtainWorkingDebtags(vocabulary(), tagfname, idxfname))
-	{
-		m_timestamp = 0;
-		return;
-	} else {
-		m_timestamp = Path::timestamp(idxfname);
+	mainSource.readTags(inserter(*this));
+	userSource.readTags(inserter(*this));
 
-		mastermmap.init(idxfname);
-
-		// Initialize the readonly index
-		m_pkgid.init(mastermmap, 0);
-		m_rocoll.init(mastermmap, 1, 2);
-	}
+	time_t ts_main_src = mainSource.tagTimestamp();
+        time_t ts_user_src = userSource.tagTimestamp();
+        m_timestamp = ts_main_src > ts_user_src ? ts_main_src : ts_user_src;
 
 	// Initialize the patch collection layer
 	rcdir = Path::debtagsUserSourceDir();
@@ -78,29 +72,23 @@ Debtags::Debtags(bool editable)
 	if (Path::access(patchFile, F_OK) == 0)
 	{
 		input::Stdio in(patchFile);
-		PatchList<int, int> patch;
-		textformat::parsePatch(in, patchStringToInt(m_pkgid, vocabulary(), inserter(patch)));
-		m_coll.setChanges(patch);
+		PatchList<string, string> patch;
+		textformat::parsePatch(in, inserter(patch));
+		applyChange(patch);
 	}
 }
 
-tagcoll::PatchList<std::string, Tag> Debtags::changes() const
+tagcoll::PatchList<std::string, std::string> Debtags::changes() const
 {
-	tagcoll::PatchList<int, int> patches = m_coll.changes();
-	tagcoll::PatchList<std::string, Tag> res;
+	// Read original tag data
+	SourceDir mainSource(Path::debtagsSourceDir());
+	SourceDir userSource(Path::debtagsUserSourceDir());
+	coll::Simple<string, string> orig;
+	mainSource.readTags(inserter(orig));
+	userSource.readTags(inserter(orig));
 
-	for (tagcoll::PatchList<int, int>::const_iterator i = patches.begin();
-			i != patches.end(); ++i)
-	{
-		std::string pkg = packageByID(i->second.item);
-		if (pkg.empty())
-			continue;
-
-		res.addPatch(tagcoll::Patch<std::string, Tag>(pkg,
-			vocabulary().tagsByID(i->second.added),
-			vocabulary().tagsByID(i->second.removed)));
-	}
-
+	tagcoll::PatchList<std::string, std::string> res;
+	res.addPatch(orig, *this);
 	return res;
 }
 
@@ -136,7 +124,7 @@ bool Debtags::hasTagDatabase()
 void Debtags::savePatch()
 {
 	PatchList<std::string, std::string> spatch;
-	m_coll.changes().output(patchIntToString(m_pkgid, vocabulary(), tagcoll::inserter(spatch)));
+	changes().output(tagcoll::inserter(spatch));
 	savePatch(spatch);
 }
 
@@ -166,28 +154,14 @@ void Debtags::savePatch(const PatchList<std::string, std::string>& patch)
 	}
 }
 
-void Debtags::savePatch(const PatchList<std::string, Tag>& patch)
-{
-	PatchList<std::string, std::string> spatch;
-	// patch.output(patchToString<C>(m_pkgs, m_pkgidx, m_tags, tagcoll::inserter(spatch)));
-	savePatch(spatch);
-}
-
 void Debtags::sendPatch()
 {
 	PatchList<std::string, std::string> spatch;
-	m_coll.changes().output(patchIntToString(m_pkgid, vocabulary(), tagcoll::inserter(spatch)));
+	changes().output(tagcoll::inserter(spatch));
 	if (!spatch.empty())
 	{
 		sendPatch(spatch);
 	}
-}
-
-void Debtags::sendPatch(const PatchList<std::string, Tag>& patch)
-{
-	PatchList<std::string, std::string> spatch;
-	// patch.output(patchToString<C>(m_pkgs, m_pkgidx, m_tags, tagcoll::inserter(spatch)));
-	sendPatch(spatch);
 }
 
 void Debtags::sendPatch(const PatchList<std::string, std::string>& patch)
@@ -226,24 +200,13 @@ void Debtags::sendPatch(const PatchList<std::string, std::string>& patch)
 	}
 }
 
-
-template<typename OUT>
-void Debtags::outputSystem(const OUT& cons)
-{
-	m_rocoll.output(intToPkg(m_pkgid, vocabulary(), cons));
-}
-
-template<typename OUT>
-void Debtags::outputPatched(const OUT& cons)
-{
-	m_coll.output(intToPkg(m_pkgid, vocabulary(), cons));
-}
-
 }
 }
 
+#include <ept/debtags/maint/sourcedir.tcc>
 #include <tagcoll/patch.tcc>
-#include <tagcoll/coll/patched.tcc>
+#include <tagcoll/coll/simple.tcc>
+#include <tagcoll/coll/fast.tcc>
 #include <tagcoll/TextFormat.tcc>
 //#include <tagcoll/stream/filters.tcc>
 

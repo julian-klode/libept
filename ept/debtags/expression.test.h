@@ -20,7 +20,7 @@
 
 #include <wibble/test.h>
 #include <ept/debtags/maint/path.h>
-#include <ept/debtags/expression.h>
+#include <tagcoll/expression.h>
 #include <ept/debtags/vocabulary.h>
 
 #include "debtags.test.h"
@@ -34,10 +34,10 @@ struct TestExpression : DebtagsTestEnvironment {
 
         Test _1()
 {
-	set<Tag> test;
-	test.insert(voc.tagByName("use::editing"));
-	test.insert(voc.tagByName("use::viewing"));
-	test.insert(voc.tagByName("works-with::text"));
+	set<std::string> test;
+	test.insert("use::editing");
+	test.insert("use::viewing");
+	test.insert("works-with::text");
 
 	assert_eq(test.size(), 3u);
 

@@ -1,7 +1,7 @@
 /*
  * ept-cache - Commandline interface to the ept library
  *
- * Copyright (C) 2007  Enrico Zini <enrico@debian.org>
+ * Copyright (C) 2007--2010  Enrico Zini <enrico@debian.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,6 @@
 
 #ifndef EPTCACHE_INFO_H
 #define EPTCACHE_INFO_H
-
-#include <ept/debtags/tag.h>
 
 #include <string>
 #include <set>
@@ -57,7 +55,7 @@ struct Info
 	ept::apt::PackageRecord* record;
 
 	bool has_tags;
-	std::set<ept::debtags::Tag> tags;
+	std::set<std::string> tags;
 
 	bool has_popcon;
 	float popcon;

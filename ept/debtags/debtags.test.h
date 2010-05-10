@@ -29,6 +29,7 @@
 
 #include <tagcoll/coll/simple.h>
 #include <tagcoll/stream/sink.h>
+#include <tagcoll/patch.h>
 
 #include <wibble/operators.h>
 
@@ -73,8 +74,8 @@ struct TestDebtags : DebtagsTestEnvironment
 
 	Test _2()
 {
-    string p("debtags");
-	std::set<Tag> tags = debtags.getTagsOfItem(p);
+	string p("debtags");
+	std::set<std::string> tags = debtags.getTagsOfItem(p);
 	assert( !tags.empty() );
 
 #if 0
@@ -87,26 +88,26 @@ struct TestDebtags : DebtagsTestEnvironment
 #endif
 
 	assert_eq( tags.size(), 8u );
-	assert( voc().tagByName( "devel::buildtools" ) <= tags );
-	assert( voc().tagByName( "implemented-in::c++" ) <= tags );
-	assert( voc().tagByName( "interface::commandline" ) <= tags );
-	assert( voc().tagByName( "role::program" ) <= tags );
-	assert( voc().tagByName( "scope::application" ) <= tags );
-	assert( voc().tagByName( "suite::debian" ) <= tags );
-	assert( voc().tagByName( "use::searching" ) <= tags );
-	assert( voc().tagByName( "works-with::software:package" ) <= tags );
+	assert( tags.find("devel::buildtools") != tags.end() );
+	assert( tags.find("implemented-in::c++") != tags.end() );
+	assert( tags.find("interface::commandline") != tags.end() );
+	assert( tags.find("role::program") != tags.end() );
+	assert( tags.find("scope::application") != tags.end() );
+	assert( tags.find("suite::debian") != tags.end() );
+	assert( tags.find("use::searching") != tags.end() );
+	assert( tags.find("works-with::software:package") != tags.end() );
 }
 
 	Test _3()
 {
 	using namespace std;
 
-    /* Get the 'debtags' package */
-    string p("debtags");
+	/* Get the 'debtags' package */
+	string p("debtags");
 
-    /* Get its tags */
-	std::set<Tag> tags = debtags.getTagsOfItem(p);
-    assert(!tags.empty());
+	/* Get its tags */
+	std::set<std::string> tags = debtags.getTagsOfItem(p);
+	assert(!tags.empty());
 
 	/*
 	cerr << "Intersection size: " << endl;
@@ -162,15 +163,14 @@ struct TestDebtags : DebtagsTestEnvironment
     assert( p <= packages );
 
     /* Get one of the tags of 'debtags' */
-    Tag tag = *tags.begin();
-    assert(tag);
+    std::string tag = *tags.begin();
 
     /* Get its items */
     {
         /* Need this workaround until I figure out how to tell the new GCC
          * that TagDB is a TDBReadonlyDiskIndex and should behave as such
          */
-		std::set<Tag> ts;
+		std::set<std::string> ts;
 		ts.insert(tag);
         packages = debtags.getItemsHavingTags(ts);
     }
@@ -190,20 +190,20 @@ struct TestDebtags : DebtagsTestEnvironment
 	string p("debtags");
 
     /* Get its tags */
-	std::set<Tag> tags = debtags.getTagsOfItem(p);
+	std::set<std::string> tags = debtags.getTagsOfItem(p);
     assert(!tags.empty());
 
 	// Ensure that it's not tagged with gameplaying
-	Tag t = voc().tagByName("use::gameplaying");
-    assert(! (t <= tags) );
+    std::string t = "use::gameplaying";
+    assert(tags.find(t) == tags.end());
 
 	// Add the gameplaying tag
-	PatchList<string, Tag> change;
-	change.addPatch(Patch<string, Tag>(p, wibble::singleton(t), wibble::Empty<Tag>()));
+	PatchList<string, string> change;
+	change.addPatch(Patch<string, string>(p, wibble::singleton(t), wibble::Empty<string>()));
 	debtags.applyChange(change);
 
 	// See that the patch is non empty
-	PatchList<string, Tag> tmp = debtags.changes();
+	PatchList<string, string> tmp = debtags.changes();
 	assert(tmp.size() > 0);
 	assert_eq(tmp.size(), 1u);
 
@@ -211,8 +211,8 @@ struct TestDebtags : DebtagsTestEnvironment
 	tags = debtags.getTagsOfItem(p);
     assert(!tags.empty());
 
-	t = voc().tagByName("use::gameplaying");
-    assert( t <= tags );
+	t = "use::gameplaying";
+    assert(tags.find(t) != tags.end());
 
 	// Save the patch
 	debtags.savePatch();
@@ -252,18 +252,19 @@ struct TestDebtags : DebtagsTestEnvironment
 	assert_eq(empty.timestamp(), 0);
 	assert(!empty.hasData());
 
-	tagcoll::PatchList<std::string, Tag> patches = empty.changes();
+	tagcoll::PatchList<std::string, std::string> patches = empty.changes();
 	assert(patches.empty());
 
-	set<Tag> res = empty.getTagsOfItem("apt");
+	set<std::string> res = empty.getTagsOfItem("apt");
 	assert(res.empty());
-	res = empty.getTagsOfItems(wibble::singleton(string("apt")));
-	assert(res.empty());
+	// TODO: currently does not compile because of a bug in tagcoll
+	//res = empty.getTagsOfItems(wibble::singleton(string("apt")));
+	//assert(res.empty());
 
 	res = empty.getAllTags();
 	assert(res.empty());
 
-	tagcoll::coll::Simple<string, Tag> coll;
+	tagcoll::coll::Simple<string, std::string> coll;
 	empty.outputSystem(tagcoll::coll::inserter(coll));
 	assert_eq(coll.itemCount(), 0u);
 

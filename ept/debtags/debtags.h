@@ -26,34 +26,14 @@
 #ifndef EPT_DEBTAGS_DEBTAGS_H
 #define EPT_DEBTAGS_DEBTAGS_H
 
-#include <ept/debtags/tag.h>
 #include <ept/debtags/vocabulary.h>
-#include <ept/debtags/maint/pkgid.h>
 
 #include <tagcoll/coll/base.h>
-#include <tagcoll/coll/intdiskindex.h>
-#include <tagcoll/coll/patched.h>
+#include <tagcoll/coll/fast.h>
 
 namespace ept {
 namespace debtags {
 class Debtags;
-}
-}
-
-namespace tagcoll {
-template< typename _, typename _1 > class PatchList;
-
-namespace coll {
-
-template<>
-struct coll_traits< ept::debtags::Debtags >
-{
-	typedef std::string item_type;
-	typedef ept::debtags::Tag tag_type;
-	typedef std::set< ept::debtags::Tag > tagset_type;
-	typedef std::set< std::string > itemset_type;
-};
-
 }
 }
 
@@ -65,26 +45,16 @@ namespace debtags {
  *
  * The database is normally found in /var/lib/debtags.
  *
- * Tags and Facets are returned as Tag and Facet objects.  The objects follow
+ * Tags and Facets are returned as std::strings.  The objects follow
  * the flyweight pattern and access the data contained in the Vocabulary
  * instantiated inside Debtags.
  *
  * It is possible to get a reference to the Vocabulary object using the
  * vocabulary() method.
  */
-class Debtags : public tagcoll::coll::Collection<Debtags>
+class Debtags : public tagcoll::coll::Fast<std::string, std::string>
 {
 protected:
-	// Master mmap index container
-	tagcoll::diskindex::MasterMMap mastermmap;
-
-	// Debtags database
-	tagcoll::coll::IntDiskIndex m_rocoll;
-	tagcoll::coll::Patched< tagcoll::coll::IntDiskIndex > m_coll;
-
-	// Package name to ID mapping
-	PkgId m_pkgid;
-
 	// Tag vocabulary
 	Vocabulary m_voc;
 
@@ -94,93 +64,9 @@ protected:
 	// Last modification timestamp of the index
 	time_t m_timestamp;
 
-	std::string packageByID(int id) const
-	{
-		return m_pkgid.byID(id);
-	}
-
-	template<typename IDS>
-	std::set<std::string> packagesById(const IDS& ids) const
-	{
-		std::set<std::string> pkgs;
-		for (typename IDS::const_iterator i = ids.begin();
-				i != ids.end(); ++i)
-			pkgs.insert(packageByID(*i));
-		return pkgs;
-	}
-
-	int idByPackage(const std::string& pkg) const
-	{
-		return m_pkgid.byName(pkg);
-	}
-
-	template<typename PKGS>
-	std::set<int> idsByPackages(const PKGS& pkgs) const
-	{
-		std::set<int> ids;
-		for (typename PKGS::const_iterator i = pkgs.begin();
-				i != pkgs.end(); ++i)
-			ids.insert(idByPackage(*i));
-		return ids;
-	}
-
 public:
-	typedef tagcoll::coll::Patched< tagcoll::coll::IntDiskIndex > coll_type;
-	typedef std::pair< std::string, std::set<Tag> > value_type;
-
-	class const_iterator
-	{
-		const Debtags& coll;
-		Debtags::coll_type::const_iterator ci;
-		mutable const Debtags::value_type* cached_val;
-
-	protected:
-		const_iterator(const Debtags& coll,
-						const Debtags::coll_type::const_iterator& ci)
-			: coll(coll), ci(ci), cached_val(0) {}
-
-	public:
-		~const_iterator()
-		{
-			if (cached_val)
-				delete cached_val;
-		}
-		const Debtags::value_type operator*() const
-		{
-			if (cached_val)
-				return *cached_val;
-
-			return make_pair(coll.packageByID(ci->first), coll.vocabulary().tagsByID(ci->second));
-		}
-		const Debtags::value_type* operator->() const
-		{
-			if (cached_val)
-				return cached_val;
-			return cached_val = new Debtags::value_type(*(*this));
-		}
-		const_iterator& operator++()
-		{
-			++ci;
-			if (cached_val)
-			{
-				delete cached_val;
-				cached_val = 0;
-			}
-			return *this;
-		}
-		bool operator==(const const_iterator& iter) const
-		{
-			return ci == iter.ci;
-		}
-		bool operator!=(const const_iterator& iter) const
-		{
-			return ci != iter.ci;
-		}
-
-		friend class Debtags;
-	};
-	const_iterator begin() const { return const_iterator(*this, m_coll.begin()); }
-	const_iterator end() const { return const_iterator(*this, m_coll.end()); }
+	typedef tagcoll::coll::Fast<std::string, std::string> coll_type;
+	typedef std::pair< std::string, std::set<std::string> > value_type;
 
 	/**
 	 * Create a new accessor for the on-disk Debtags database
@@ -190,8 +76,8 @@ public:
 	 * is true, then the local state directory will be created when the object
 	 * is instantiated.
 	 */
-    Debtags(bool editable = false);
-    ~Debtags() {}
+	Debtags(bool editable = false);
+	~Debtags() {}
 
 	/// Get the timestamp of when the index was last updated
 	time_t timestamp() const { return m_timestamp; }
@@ -199,25 +85,11 @@ public:
 	/// Return true if this data source has data, false if it's empty
 	bool hasData() const { return m_timestamp != 0; }
 
-	coll_type& tagdb() { return m_coll; }
-	const coll_type& tagdb() const { return m_coll; }
-	tagcoll::PatchList<std::string, Tag> changes() const;
+	coll_type& tagdb() { return *this; }
+	const coll_type& tagdb() const { return *this; }
+	tagcoll::PatchList<std::string, std::string> changes() const;
 
 #if 0
-	template<typename ITEMS, typename TAGS>
-	void insert(const ITEMS& items, const TAGS& tags)
-	{
-		for (typename ITEMS::const_iterator i = items.begin();
-				i != items.end(); ++i)
-			m_changes.addPatch(Patch(*i, tags, TagSet()));
-	}
-
-	template<typename ITEMS>
-	void insert(const ITEMS& items, const wibble::Empty<Tag>& tags)
-	{
-		// Nothing to do in this case
-	}
-
 	/**
 	 * Get the changes that have been applied to this collection
 	 */
@@ -239,84 +111,14 @@ public:
 	void addChanges(const Patches& changes);
 #endif
 
-    bool hasTag(const Tag& tag) const { return m_coll.hasTag(tag.id()); }
-
-	std::set<Tag> getTagsOfItem(const std::string& item) const
-	{
-		int id = idByPackage(item);
-		if (id == -1) return std::set<Tag>();
-		return vocabulary().tagsByID(m_coll.getTagsOfItem(id));
-	}
-
-	template<typename ITEMS>
-	std::set<Tag> getTagsOfItems(const ITEMS& items) const
-	{
-		return vocabulary().tagsByID(m_coll.getTagsOfItems(idsByPackages(items)));
-	}
-
-	std::set<std::string> getItemsHavingTag(const Tag& tag) const
-	{
-		return packagesById(m_coll.getItemsHavingTag(tag.id()));
-	}
-	template<typename TAGS>
-	std::set<std::string> getItemsHavingTags(const TAGS& tags) const
-	{
-		std::set<int> itags;
-		for (typename TAGS::const_iterator i = tags.begin();
-				i != tags.end(); ++i)
-			itags.insert(i->id());
-		return packagesById(m_coll.getItemsHavingTags(itags));
-	}
-
 #if 0
 	ItemSet getTaggedItems() const;
 #endif
-	std::set<Tag> getAllTags() const
-	{
-		return vocabulary().tagsByID(m_coll.getAllTags());
-	}
 
 	/// Access the vocabulary in use
-    Vocabulary& vocabulary() { return m_voc; }
+	Vocabulary& vocabulary() { return m_voc; }
 	/// Access the vocabulary in use
-    const Vocabulary& vocabulary() const { return m_voc; }
-
-	/**
-	 * Access the PkgId in use.
-	 *
-	 * \note Future implementations may not rely on a PkgId
-	 */
-	PkgId& pkgid() { return m_pkgid; }
-	/**
-	 * Access the PkgId in use.
-	 *
-	 * \note Future implementations may not rely on a PkgId
-	 */
-	const PkgId& pkgid() const { return m_pkgid; }
-
-	int getCardinality(const Tag& tag) const
-	{
-		return m_coll.getCardinality(tag.id());
-	}
-
-	void applyChange(const tagcoll::PatchList<std::string, Tag>& change)
-	{
-		using namespace tagcoll;
-		PatchList<int, int> intp;
-		for (PatchList<std::string, Tag>::const_iterator i = change.begin();
-				i != change.end(); ++i)
-		{
-			Patch<int, int> p(idByPackage(i->first));
-			for (std::set<Tag>::const_iterator j = i->second.added.begin();
-					j != i->second.added.end(); ++j)
-				p.add(j->id());
-			for (std::set<Tag>::const_iterator j = i->second.removed.begin();
-					j != i->second.removed.end(); ++j)
-				p.remove(j->id());
-			intp.addPatch(p);
-		}
-		m_coll.applyChange(intp);
-	}
+	const Vocabulary& vocabulary() const { return m_voc; }
 
 #if 0
 	template<typename OUT>
@@ -352,12 +154,6 @@ public:
 	void savePatch(const tagcoll::PatchList<std::string, std::string>& patch);
 
 	/**
-	 * Save in the state storage directory a patch to turn the system database
-	 * into the collection given
-	 */
-	void savePatch(const tagcoll::PatchList<std::string, Tag>& patch);
-
-	/**
 	 * Send to the central archive a patch that can be used to turn
 	 * the system database into the collection given
 	 */
@@ -369,13 +165,7 @@ public:
 	void sendPatch(const tagcoll::PatchList<std::string, std::string>& patch);
 
 	/**
-	 * Send the given patch to the central archive
-	 */
-	void sendPatch(const tagcoll::PatchList<std::string, Tag>& patch);
-
-
-	/**
-	 * Output the current Debian tags database to a consumer of <std::string, Tag>
+	 * Output the current Debian tags database to a consumer of <std::string, std::string>
 	 *
 	 * \note The collection is sent to 'cons' without merging repeated items
 	 */
@@ -383,7 +173,7 @@ public:
 	void outputSystem(const OUT& cons);
 
 	/**
-	 * Output the given tag file to a consumer of <std::string, Tag>
+	 * Output the given tag file to a consumer of <std::string, std::string>
 	 *
 	 * \note The collection is sent to 'cons' without merging repeated items
 	 */
@@ -392,7 +182,7 @@ public:
 
 	/**
 	 * Output the current Debian tags database, patched with local patch,
-	 * to a Consumer of <std::string, Tag>
+	 * to a Consumer of <std::string, std::string>
 	 *
 	 * \note The collection is sent to 'cons' without merging repeated items
 	 */
@@ -401,7 +191,7 @@ public:
 
 	/**
 	 * Output the given tag file, patched with local patch,
-	 * to a Consumer of <std::string, Tag>
+	 * to a Consumer of <std::string, std::string>
 	 *
 	 * \note The collection is sent to 'cons' without merging repeated items
 	 */

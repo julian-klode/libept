@@ -36,9 +36,9 @@ basic_ostream<char, _Traits>& operator<<(basic_ostream<char, _Traits>& out, cons
 	for (typename std::set<TAG>::const_iterator i = tags.begin();
 			i != tags.end(); i++)
 		if (i == tags.begin())
-			out << i->fullname();
+			out << *i;
 		else
-			out << ", " << i->fullname();
+			out << ", " << *i;
 	return out;
 }
 

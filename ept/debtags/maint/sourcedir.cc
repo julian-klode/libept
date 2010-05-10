@@ -1,5 +1,5 @@
 #include <ept/debtags/maint/sourcedir.h>
-#include <ept/debtags/maint/vocabularymerger.h>
+#include <ept/debtags/vocabulary.h>
 #include <ept/debtags/maint/path.h>
 
 #include <wibble/string.h>
@@ -97,6 +97,7 @@ void SourceDir::readVocabularies(Vocabulary& out)
 
 	for (const_iterator d = begin(); d != end(); ++d)
 	{
+		if (d->d_name[0] == '.') continue;
 		FileType type = fileType(d->d_name);
 		if (type == VOC)
 		{

@@ -39,6 +39,52 @@ using namespace tagcoll;
 namespace ept {
 namespace debtags {
 
+namespace voc {
+std::string Data::shortDescription() const
+{
+	if (m_desc.empty())
+	{
+		string d = longDescription();
+		if (d.empty()) return d;
+		size_t pos = d.find('\n');
+		if (pos == std::string::npos)
+			m_desc = d;
+		else
+			m_desc = d.substr(0, pos);
+	}
+	return m_desc;
+}
+
+std::string Data::longDescription() const
+{
+	const_iterator i = find("Description");
+	if (i == end()) return std::string();
+	return i->second;
+}
+
+bool FacetData::hasTag(const std::string& name) const
+{
+	return m_tags.find(name) != m_tags.end();
+}
+
+const TagData* FacetData::tagData(const std::string& name) const
+{
+	std::map<std::string, voc::TagData>::const_iterator i = m_tags.find(name);
+	if (i == m_tags.end()) return 0;
+	return &i->second;
+}
+
+std::set<std::string> FacetData::tags() const
+{
+	std::set<std::string> res;
+	for (std::map<std::string, voc::TagData>::const_iterator i = m_tags.begin();
+			i != m_tags.end(); ++i)
+		res.insert(i->first);
+	return res;
+}
+
+}
+
 static inline std::string getfacet(const std::string& tagname)
 {
 	size_t p = tagname.find("::");
@@ -67,11 +113,11 @@ Vocabulary::~Vocabulary()
 
 voc::TagData& voc::FacetData::obtainTag(const std::string& name)
 {
-	std::map<std::string, voc::TagData>::iterator i = tags.find(name);
-	if (i == tags.end())
+	std::map<std::string, voc::TagData>::iterator i = m_tags.find(name);
+	if (i == m_tags.end())
 	{
 		// Create the tag if it's missing
-		pair<std::map<std::string, TagData>::iterator, bool> res = tags.insert(make_pair<std::string, TagData>(name, TagData()));
+		pair<std::map<std::string, TagData>::iterator, bool> res = m_tags.insert(make_pair<std::string, TagData>(name, TagData()));
 		i = res.first;
 		i->second.name = name;
 	}
@@ -93,15 +139,7 @@ voc::FacetData& Vocabulary::obtainFacet(const std::string& name)
 
 voc::TagData& Vocabulary::obtainTag(const std::string& fullname)
 {
-	size_t p = fullname.find("::");
-	if (p == string::npos)
-	{
-		voc::FacetData& facet = obtainFacet("legacy");
-		return facet.obtainTag(fullname);
-	} else {
-		voc::FacetData& facet = obtainFacet(fullname.substr(0, p));
-		return facet.obtainTag(fullname.substr(p + 2));
-	}
+	return obtainFacet(getfacet(fullname)).obtainTag(fullname);
 }
 
 
@@ -115,7 +153,7 @@ bool Vocabulary::hasTag(const std::string& name) const
 {
 	const voc::FacetData* f = facetData(getfacet(name));
 	if (!f) return false;
-	return f->tags.find(name) != f->tags.end();
+	return f->hasTag(name);
 }
 
 const voc::FacetData* Vocabulary::facetData(const std::string& name) const
@@ -131,10 +169,7 @@ const voc::TagData* Vocabulary::tagData(const std::string& tagname) const
 	const voc::FacetData* f = facetData(getfacet(tagname));
 	if (!f) return 0;
 
-	std::map<std::string, voc::TagData>::const_iterator i = f->tags.find(tagname);
-	if (i == f->tags.end()) return 0;
-
-	return &i->second;
+	return f->tagData(tagname);
 }
 
 std::set<std::string> Vocabulary::facets() const
@@ -151,21 +186,17 @@ std::set<std::string> Vocabulary::tags() const
 	std::set<std::string> res;
 	for (std::map<std::string, voc::FacetData>::const_iterator i = m_facets.begin();
 			i != m_facets.end(); ++i)
-		for (std::map<std::string, voc::TagData>::const_iterator j = i->second.tags.begin();
-				j != i->second.tags.end(); ++j)
+		for (std::map<std::string, voc::TagData>::const_iterator j = i->second.m_tags.begin();
+				j != i->second.m_tags.end(); ++j)
 			res.insert(j->first);
 	return res;
 }
 
 std::set<std::string> Vocabulary::tags(const std::string& facet) const
 {
-	std::set<std::string> res;
 	const voc::FacetData* f = facetData(facet);
-	if (!f) return res;
-	for (std::map<std::string, voc::TagData>::const_iterator i = f->tags.begin();
-			i != f->tags.end(); ++i)
-		res.insert(i->first);
-	return res;
+	if (!f) return std::set<std::string>();
+	return f->tags();
 }
 
 void Vocabulary::read(tagcoll::input::Input& input)
@@ -309,8 +340,8 @@ void Vocabulary::write(FILE* out)
 			writeDebStyleField(out, j->first, j->second);
 		fputc('\n', out);
 
-		for (std::map<std::string, voc::TagData>::iterator t = f->second.tags.begin();
-				t != f->second.tags.end(); t++)
+		for (std::map<std::string, voc::TagData>::iterator t = f->second.m_tags.begin();
+				t != f->second.m_tags.end(); t++)
 		{
 			//fprintf(stderr, "Writing tag %.*s\n", PFSTR(t->first));
 			writeDebStyleField(out, "Tag", f->first + "::" + t->first);

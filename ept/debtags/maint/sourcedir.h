@@ -30,7 +30,7 @@
 namespace ept {
 namespace debtags {
 
-class VocabularyMerger;
+class Vocabulary;
 
 /**
  * Access a directory containing Debtags data files

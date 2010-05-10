@@ -1,7 +1,7 @@
 /*
  * ept-cache - Commandline interface to the ept library
  *
- * Copyright (C) 2007  Enrico Zini <enrico@debian.org>
+ * Copyright (C) 2007--2010  Enrico Zini <enrico@debian.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include <ept/apt/packagerecord.h>
 #include <ept/popcon/popcon.h>
 #include <ept/popcon/local.h>
-#include <ept/debtags/expression.h>
+#include <tagcoll/expression.h>
 #include <ept/textsearch/textsearch.h>
 #include <ept/textsearch/extraindexers.h>
 
@@ -568,7 +568,7 @@ struct Generator
 		generateRecords(out);
 	}
 
-	void debtagsSearch(const set<Tag>& wantedTags, Consumer& out)
+	void debtagsSearch(const set<std::string>& wantedTags, Consumer& out)
 	{
 		debug("Generate by querying debtags\n");
 		env().debtags().outputHavingTags(wantedTags, OutputInfo(filters, out));
