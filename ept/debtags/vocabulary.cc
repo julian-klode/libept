@@ -40,6 +40,16 @@ namespace ept {
 namespace debtags {
 
 namespace voc {
+
+std::string getfacet(const std::string& tagname)
+{
+	size_t p = tagname.find("::");
+	if (p == string::npos)
+		return "legacy";
+	else
+		return tagname.substr(0, p);
+}
+
 std::string Data::shortDescription() const
 {
 	if (m_desc.empty())
@@ -83,15 +93,6 @@ std::set<std::string> FacetData::tags() const
 	return res;
 }
 
-}
-
-static inline std::string getfacet(const std::string& tagname)
-{
-	size_t p = tagname.find("::");
-	if (p == string::npos)
-		return "legacy";
-	else
-		return tagname.substr(0, p);
 }
 
 Vocabulary::Vocabulary()
@@ -139,7 +140,7 @@ voc::FacetData& Vocabulary::obtainFacet(const std::string& name)
 
 voc::TagData& Vocabulary::obtainTag(const std::string& fullname)
 {
-	return obtainFacet(getfacet(fullname)).obtainTag(fullname);
+	return obtainFacet(voc::getfacet(fullname)).obtainTag(fullname);
 }
 
 
@@ -151,7 +152,7 @@ bool Vocabulary::hasFacet(const std::string& name) const
 
 bool Vocabulary::hasTag(const std::string& name) const
 {
-	const voc::FacetData* f = facetData(getfacet(name));
+	const voc::FacetData* f = facetData(voc::getfacet(name));
 	if (!f) return false;
 	return f->hasTag(name);
 }
@@ -166,7 +167,7 @@ const voc::FacetData* Vocabulary::facetData(const std::string& name) const
 
 const voc::TagData* Vocabulary::tagData(const std::string& tagname) const
 {
-	const voc::FacetData* f = facetData(getfacet(tagname));
+	const voc::FacetData* f = facetData(voc::getfacet(tagname));
 	if (!f) return 0;
 
 	return f->tagData(tagname);

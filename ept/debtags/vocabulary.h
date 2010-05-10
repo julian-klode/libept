@@ -39,6 +39,9 @@ namespace ept {
 namespace debtags {
 namespace voc {
 
+/// Extract the facet name from a tag name
+std::string getfacet(const std::string& tagname);
+
 /// Base class for facet and tag data
 struct Data : public std::map<std::string, std::string>
 {
