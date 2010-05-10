@@ -25,13 +25,14 @@
 #include <ept/debtags/vocabulary.h>
 #include <ept/popcon/popcon.h>
 #include <ept/popcon/local.h>
-#include <ept/textsearch/textsearch.h>
+#include <ept/axi/axi.h>
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <unistd.h>	// isatty
 
 using namespace std;
+using namespace ept;
 
 static Environment* instance = 0;
 
@@ -45,7 +46,7 @@ Environment& Environment::get() throw ()
 
 // Initialize the environment with default values
 Environment::Environment() throw ()
-	: m_apt(0), m_debtags(0), m_popcon(0), m_popconlocal(0), m_textsearch(0), _verbose(false), _debug(false) {}
+	: m_apt(0), m_debtags(0), m_popcon(0), m_popconlocal(0), m_axi(0), _verbose(false), _debug(false) {}
 
 void Environment::init(bool editable)
 {
@@ -54,7 +55,10 @@ void Environment::init(bool editable)
 	m_vocabulary = new ept::debtags::Vocabulary;
 	m_popcon = new ept::popcon::Popcon;
 	m_popconlocal = new ept::popcon::Local;
-	m_textsearch = new ept::textsearch::TextSearch;
+	if (axi::timestamp() > 0)
+		m_axi = new Xapian::Database(axi::path_db());
+	else
+		m_axi = new Xapian::Database;
 }
 
 void fatal_error(const char* fmt, ...) throw() ATTR_PRINTF(1, 2)

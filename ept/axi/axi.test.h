@@ -1,12 +1,7 @@
-#ifndef EPT_TEXTSEARCH_EXTRAINDEXERS_H
-#define EPT_TEXTSEARCH_EXTRAINDEXERS_H
-
-/** @file
- * @author Enrico Zini <enrico@enricozini.org>
- * Fast full-text search
- */
-
+// -*- mode: c++; tab-width: 4; indent-tabs-mode: t -*-
 /*
+ * popcon test
+ *
  * Copyright (C) 2007  Enrico Zini <enrico@debian.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,28 +19,40 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <ept/textsearch/textsearch.h>
+#include <ept/test.h>
+#include <ept/axi/axi.h>
+#include <ept/apt/apt.h>
+#include <wibble/sys/fs.h>
+#include <set>
 
-namespace ept {
-namespace debtags {
-class Debtags;
-}
-namespace textsearch {
+using namespace std;
+using namespace ept;
 
-struct AptTagsExtraIndexer : public TextSearch::ExtraIndexer
+struct DirMaker
 {
-	virtual void operator()(Xapian::Document& doc, const apt::PackageRecord& rec) const;
+	DirMaker(const std::string& name)
+	{
+		wibble::sys::fs::mkdirIfMissing(name, 0755);
+	}
 };
 
-struct DebtagsExtraIndexer : public TextSearch::ExtraIndexer
+struct TestAxi : AptTestEnvironment
 {
-	const debtags::Debtags& debtags;
-	DebtagsExtraIndexer(const debtags::Debtags& debtags) : debtags(debtags) {}
-	virtual void operator()(Xapian::Document& doc, const apt::PackageRecord& rec) const;
-};
+	DirMaker md;
+	axi::OverrideIndexDir oid;
+	apt::Apt apt;
 
-}
-}
+	TestAxi()
+		: md( TEST_ENV_DIR "xapian"), oid( TEST_ENV_DIR "xapian")
+	{
+	}
+
+// Access an empty index
+	Test empty()
+	{
+		axi::OverrideIndexDir oid("./empty");
+		assert_eq(axi::timestamp(), 0);
+	}
+};
 
 // vim:set ts=4 sw=4:
-#endif

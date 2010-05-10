@@ -2,8 +2,7 @@ project( ept )
 include( ${WIBBLE_TEST_CMAKE} )
 
 file( GLOB src *.cpp debtags/*.cc debtags/maint/*.cc
-  popcon/*.cc popcon/maint/*.cc apt/*.cc textsearch/*.cc
-  textsearch/maint/*.cc )
+  popcon/*.cc popcon/maint/*.cc apt/*.cc axi/*.cc )
 
 file( GLOB h_top *.h )
 file( GLOB h_apt apt/*.h )
@@ -11,15 +10,14 @@ file( GLOB h_debtags debtags/*.h debtags/*.tcc )
 file( GLOB h_debtags_maint debtags/maint/*.h debtags/maint/*.tcc )
 file( GLOB h_popcon popcon/*.h )
 file( GLOB h_popcon_maint popcon/maint/*.h )
-file( GLOB h_textsearch textsearch/*.h )
-file( GLOB h_textsearch_maint textsearch/maint/*.h )
+file( GLOB h_axi axi/*.h )
 
 file( GLOB debtagstesth debtags/*.test.h debtags/maint/*.test.h )
 file( GLOB popcontesth popcon/*.test.h )
 file( GLOB apttesth apt/*.test.h )
-file( GLOB textsearchtesth textsearch/*.test.h )
+file( GLOB axitesth axi/*.test.h )
 set( testh ${debtagstesth} ${popcontesth}
-           ${apttesth} ${textsearchtesth} )
+           ${apttesth} ${axitesth} )
 
 include_directories( ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} 
                      ${TAGCOLL_INCLUDE_DIRS} ${WIBBLE_INCLUDE_DIRS} )
@@ -90,5 +88,4 @@ install( FILES ${h_debtags} DESTINATION include/ept/debtags )
 install( FILES ${h_debtags_maint} DESTINATION include/ept/debtags/maint )
 install( FILES ${h_popcon} DESTINATION include/ept/popcon )
 install( FILES ${h_popcon_maint} DESTINATION include/ept/popcon/maint )
-install( FILES ${h_textsearch} DESTINATION include/ept/textsearch )
-install( FILES ${h_textsearch_maint} DESTINATION include/ept/textsearch/maint )
+install( FILES ${h_axi} DESTINATION include/ept/axi )

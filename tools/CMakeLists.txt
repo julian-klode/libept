@@ -2,7 +2,6 @@ include_directories( ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}
                      ${TAGCOLL_INCLUDE_DIRS} ${WIBBLE_INCLUDE_DIRS} )
 link_libraries( ept )
 
-add_executable( ept-search ept-search.cpp )
 add_executable( ept-cat ept-cat.cpp )
 add_executable( pkglist pkglist.cpp )
 add_executable( manpage manpage.cc )

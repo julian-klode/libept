@@ -4,8 +4,10 @@ libept (1.0) unstable; urgency=low
      - no more indices to maintain, just read the text files
      - no more int IDs and conversions to/from strings
   * Breaks API and ABI: bump major version
+  * Replaced textindex with axi, which contains just a handful of helper
+    functions to handle apt-xapian-index
 
- -- Enrico Zini <enrico@debian.org>  Mon, 10 May 2010 12:45:07 +0100
+ -- Enrico Zini <enrico@debian.org>  Mon, 10 May 2010 17:49:17 +0100
 
 libept (0.5.30) unstable; urgency=low
 

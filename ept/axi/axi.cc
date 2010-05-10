@@ -22,37 +22,54 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <ept/textsearch/extraindexers.h>
-#include <ept/apt/packagerecord.h>
-#include <ept/debtags/debtags.h>
+#include <ept/config.h>
+#include <ept/axi/axi.h>
+
+#include <wibble/exception.h>
+#include <wibble/string.h>
+#include <wibble/sys/fs.h>
+#include <memory>
 
 using namespace std;
-using namespace ept::debtags;
+using namespace wibble;
 
 namespace ept {
-namespace textsearch {
+namespace axi {
 
-void AptTagsExtraIndexer::operator()(Xapian::Document& doc, const apt::PackageRecord& rec) const
+static std::string m_index_dir = TEXTSEARCH_DB_DIR;
+
+std::string path_dir()
 {
-	// Index tags as well
-	set<string> tags = rec.tag();
-	for (set<string>::const_iterator ti = tags.begin();
-			ti != tags.end(); ++ti)
-		doc.add_term("XT"+*ti);
+	return m_index_dir;
 }
 
-void DebtagsExtraIndexer::operator()(Xapian::Document& doc, const apt::PackageRecord& rec) const
+std::string path_db()
 {
-	// Index tags as well
-	set<std::string> tags = debtags.getTagsOfItem(doc.get_data());
-	for (set<std::string>::const_iterator ti = tags.begin();
-			ti != tags.end(); ++ti)
-		doc.add_term("XT"+*ti);
+	return str::joinpath(m_index_dir, "/index");
+}
+
+time_t timestamp()
+{
+	string tsfile = str::joinpath(m_index_dir, "update-timestamp");
+	std::auto_ptr<struct stat> st = sys::fs::stat(tsfile);
+	if (st.get())
+		return st->st_mtime;
+	else
+		return 0;
+}
+
+
+OverrideIndexDir::OverrideIndexDir(const std::string& path) : old(m_index_dir)
+{
+	m_index_dir = path;
+}
+
+OverrideIndexDir::~OverrideIndexDir()
+{
+	m_index_dir = old;
 }
 
 }
 }
-
-#include <ept/debtags/debtags.tcc>
 
 // vim:set ts=4 sw=4:

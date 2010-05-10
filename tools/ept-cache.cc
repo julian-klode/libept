@@ -27,18 +27,21 @@
 #include <ept/apt/apt.h>
 #include <ept/apt/packagerecord.h>
 #include <ept/debtags/debtags.h>
+#include <ept/debtags/vocabulary.h>
 #include <ept/popcon/popcon.h>
 #include <ept/popcon/local.h>
 #include <tagcoll/expression.h>
-#include <ept/textsearch/textsearch.h>
-#include <ept/textsearch/extraindexers.h>
+#include <ept/axi/axi.h>
 
 #include <wibble/regexp.h>
+#include <wibble/string.h>
 
 #include <algorithm>
 #include <iostream>
 #include <sstream>
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 /*
@@ -86,10 +89,10 @@
 
 using namespace std;
 using namespace tagcoll;
+using namespace wibble;
 using namespace ept;
 using namespace ept::debtags;
 using namespace ept::apt;
-using namespace ept::textsearch;
 
 static const int DEFAULT_QUALITY_CUTOFF = 50;
 
@@ -461,6 +464,42 @@ struct Generator
 {
 	filter::And filters;
 
+	Xapian::QueryParser qp;
+	Xapian::Stem stem;
+
+	Generator() : stem("en")
+	{
+		qp.set_default_op(Xapian::Query::OP_AND);
+		qp.set_database(env().axi());
+		qp.set_stemmer(stem);
+		qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+		qp.add_prefix("pkg", "XP");
+		qp.add_boolean_prefix("tag", "XT");
+		qp.add_boolean_prefix("sec", "XS");
+	}
+	
+	Xapian::Query makeQuery(const vector<string>& keywords)
+	{
+		// Add prefixes to tag names
+		const Vocabulary& voc = env().voc();
+		vector<string> kw;
+		for (vector<string>::const_iterator i = keywords.begin();
+				i != keywords.end(); ++i)
+		{
+			if (voc.hasTag(*i))
+				kw.push_back("tag:" + *i);
+			else
+				kw.push_back(*i);
+		}
+		return qp.parse_query(str::join(kw.begin(), kw.end(), " "),
+				Xapian::QueryParser::FLAG_BOOLEAN |
+				Xapian::QueryParser::FLAG_LOVEHATE |
+				Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE |
+				Xapian::QueryParser::FLAG_WILDCARD |
+				Xapian::QueryParser::FLAG_PURE_NOT |
+				Xapian::QueryParser::FLAG_SPELLING_CORRECTION);
+	}
+
 	// Generate all the packages, without records
 	void generateNames(Consumer& out)
 	{
@@ -496,13 +535,14 @@ struct Generator
 	void keywordXapianSearch(const vector<string>& keywords, Consumer& out, int qualityCutoff = DEFAULT_QUALITY_CUTOFF)
 	{
 		debug("Generate with xapian\n");
-		Xapian::Enquire enquire(env().textsearch().db());
+		Xapian::Enquire enquire(env().axi());
 
 		// Set up the base query
-		Xapian::Query query = env().textsearch().makeORQuery(keywords.begin(), keywords.end());
+		Xapian::Query query = makeQuery(keywords);
 		enquire.set_query(query);
 		debug("Xapian query: %s\n", query.get_description().c_str());
 
+#if 0
 		// Get a set of tags to expand the query
 		vector<string> expand = env().textsearch().expand(enquire);
 
@@ -510,6 +550,7 @@ struct Generator
 		Xapian::Query expansion(Xapian::Query::OP_OR, expand.begin(), expand.end());
 		enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, query, expansion));
 		debug("Expanded Xapian query: %s\n", enquire.get_query().get_description().c_str());
+#endif
 
 		//cerr << "Q: " << enquire.get_query().get_description() << endl;
 		fromXapianEnquire(enquire, out, qualityCutoff);
@@ -605,7 +646,7 @@ Consumer* createPrinter(const wibble::commandline::EptCacheOptions& opts, Consum
 
 bool usesXapian(wibble::commandline::EptCacheOptions& opts)
 {
-	return opts.hasNext() && env().textsearch().hasData();
+	return opts.hasNext() && axi::timestamp() > 0;
 }
 
 void generate(wibble::commandline::EptCacheOptions& opts, Consumer& output,
@@ -684,7 +725,7 @@ void generate(wibble::commandline::EptCacheOptions& opts, Consumer& output,
 		vector<string> keywords;
 		while (opts.hasNext())
 			keywords.push_back(toLower(opts.next()));
-		if (env().textsearch().hasData())
+		if (axi::timestamp() > 0)
 			gen.keywordXapianSearch(keywords, *cons, defaultXapianQualityCutoff);
 		else
 			gen.keywordAptSearch(keywords, *cons);
@@ -711,6 +752,21 @@ struct BlacklistDecider : public Xapian::MatchDecider
 		return blacklist.find(doc.get_data()) == blacklist.end();
 	}
 };
+
+Xapian::Query makeRelatedQuery(const std::string& pkgname)
+{
+        Xapian::Enquire enquire(env().axi());
+        
+        // Retrieve the document for the given package
+        enquire.set_query(Xapian::Query("XP"+pkgname));
+        Xapian::MSet matches = enquire.get_mset(0, 1);
+        Xapian::MSetIterator mi = matches.begin();
+        if (mi == matches.end()) return Xapian::Query();
+        Xapian::Document doc = mi.get_document();
+ 
+        // Return the query to get the list of similar documents
+        return Xapian::Query(Xapian::Query::OP_OR, doc.termlist_begin(), doc.termlist_end());
+}
 
 void generateRelated(wibble::commandline::EptCacheOptions& opts, Consumer& output,
 				int defaultXapianLimit = -1, int defaultXapianQualityCutoff = DEFAULT_QUALITY_CUTOFF)
@@ -767,10 +823,9 @@ void generateRelated(wibble::commandline::EptCacheOptions& opts, Consumer& outpu
 	if (opts.out_cutoff->isSet())
 		defaultXapianQualityCutoff = opts.out_cutoff->intValue();
 
-	TextSearch& textsearch = env().textsearch();
-	Xapian::Enquire enq(textsearch.db());
+	Xapian::Enquire enq(env().axi());
 	string name = opts.next();
-	Xapian::Query query = textsearch.makeRelatedQuery(name);
+	Xapian::Query query = makeRelatedQuery(name);
 	BlacklistDecider blacklister;
 	debug("Excluding '%s' from the results\n", name.c_str());
 	blacklister.blacklist.insert(name);
@@ -782,7 +837,7 @@ void generateRelated(wibble::commandline::EptCacheOptions& opts, Consumer& outpu
 		blacklister.blacklist.insert(name);
 		if (!env().apt().isValid(name))
 			throw wibble::exception::Consistency("reading package names", "package "+name+" does not exist");
-		query = Xapian::Query(Xapian::Query::OP_AND, query, textsearch.makeRelatedQuery(name));
+		query = Xapian::Query(Xapian::Query::OP_AND, query, makeRelatedQuery(name));
 	}
 	//enq.register_match_decider("blacklist", &blacklister);
 	//gen.filters.acquire(new filter::Blacklist(seen));
@@ -917,11 +972,7 @@ int main(int argc, const char* argv[])
 		{
 			warn_non_root_on_error = true;
 
-			// Access the indexes to trigger a rebuild
-			env().init();
-
-			textsearch::AptTagsExtraIndexer atei;
-			textsearch::DebtagsExtraIndexer dei(env().debtags());
+			mode_t prev_umask = umask(022);
 
 			int exitcode;
 			if (opts.out_quiet->boolValue())
@@ -935,22 +986,9 @@ int main(int argc, const char* argv[])
 				throw wibble::exception::Consistency("running update-apt-xapian-index", str.str());
 			}
 				
-#if 0
-			vector<const TextSearch::ExtraIndexer*> extraIndexers;
-
-			if (env().debtags().hasData())
-				extraIndexers.push_back(&dei);
-			else
-				extraIndexers.push_back(&atei);
-
-			// The TextSearch needs explicit reindexing
-			env().textsearch().rebuildIfNeeded(env().apt(), extraIndexers);
-#endif
-
 			// TODO: if verbose, print the various data files used
 
-			//mode_t prev_umask = umask(022);
-			//umask(prev_umask);
+			umask(prev_umask);
 		}
 		// info
 		// Show information about the data providers
@@ -974,9 +1012,10 @@ int main(int argc, const char* argv[])
 				cout << "Popcon local scan: disabled.  To enable it, install the popularity-contest package and" << endl
 					 << "        enable it to run." << endl;
 
-			if (env().textsearch().hasData())
-				if (env().textsearch().needsRebuild(env().apt()))
-					cout << "Xapian: enabled but not up to date.  To update it, run 'ept-cache reindex' as root." << endl;
+			time_t xts = axi::timestamp();
+			if (xts > 0)
+				if (xts < env().apt().timestamp())
+					cout << "Xapian: enabled but not up to date.  To update it, run 'update-apt-xapian-index' as root." << endl;
 				else
 					cout << "Xapian: enabled and up to date." << endl;
 			else

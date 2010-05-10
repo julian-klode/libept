@@ -23,6 +23,10 @@
 
 #include <string>
 
+namespace Xapian {
+class Database;
+}
+
 namespace ept {
 namespace apt {
 class Apt;
@@ -34,9 +38,6 @@ class Vocabulary;
 namespace popcon {
 class Popcon;
 class Local;
-}
-namespace textsearch {
-class TextSearch;
 }
 }
 
@@ -59,7 +60,7 @@ protected:
 	ept::popcon::Local* m_popconlocal;
 
 	/// TextSearch data provider
-	ept::textsearch::TextSearch* m_textsearch;
+	Xapian::Database* m_axi;
 
 	// True when operations should be verbose
 	bool _verbose;
@@ -95,7 +96,7 @@ public:
 	ept::popcon::Local& popconLocal() { return *m_popconlocal; }
 
 	/// Access the textsearch data
-	ept::textsearch::TextSearch& textsearch() { return *m_textsearch; }
+	Xapian::Database& axi() { return *m_axi; }
 
 	// Accessor methods
 
