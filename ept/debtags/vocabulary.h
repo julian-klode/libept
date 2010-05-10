@@ -162,7 +162,14 @@ protected:
 	voc::TagData& obtainTag(const std::string& fullname);
 	
 public:
-	Vocabulary();
+	/**
+	 * Instantiate the Debtags vocabulary
+	 *
+	 * @param empty
+	 *   false if the Debtags vocabulary should be loaded,
+	 *   true if it should start as an empty vocabulary
+	 */
+	Vocabulary(bool empty=false);
 	~Vocabulary();
 
 	/// Get the timestamp of when the index was last updated
@@ -224,6 +231,11 @@ public:
 	 * previously imported ones
 	 */
 	void read(tagcoll::input::Input& input);
+
+	/**
+	 * Atomically update the system vocabulary
+	 */
+	void write();
 
 	/**
 	 * Atomically write the vocabulary data to the given file

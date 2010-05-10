@@ -95,17 +95,20 @@ std::set<std::string> FacetData::tags() const
 
 }
 
-Vocabulary::Vocabulary()
+Vocabulary::Vocabulary(bool empty)
 {
-	SourceDir mainSource(Path::debtagsSourceDir());
-	SourceDir userSource(Path::debtagsUserSourceDir());
+	if (!empty)
+	{
+		SourceDir mainSource(Path::debtagsSourceDir());
+		SourceDir userSource(Path::debtagsUserSourceDir());
 
-	mainSource.readVocabularies(*this);
-	userSource.readVocabularies(*this);
+		mainSource.readVocabularies(*this);
+		userSource.readVocabularies(*this);
 
-	time_t ts_main_src = mainSource.vocTimestamp();
-	time_t ts_user_src = userSource.vocTimestamp();
-	m_timestamp = ts_main_src > ts_user_src ? ts_main_src : ts_user_src;
+		time_t ts_main_src = mainSource.vocTimestamp();
+		time_t ts_user_src = userSource.vocTimestamp();
+		m_timestamp = ts_main_src > ts_user_src ? ts_main_src : ts_user_src;
+	}
 }
 
 Vocabulary::~Vocabulary()
@@ -241,6 +244,27 @@ void Vocabulary::read(tagcoll::input::Input& input)
 					input.fileName().c_str(), input.lineNumber());
 		}
 	}
+}
+
+void Vocabulary::write()
+{
+	SourceDir mainSource(Path::debtagsSourceDir());
+	SourceDir userSource(Path::debtagsUserSourceDir());
+
+	// Do we have a user source?
+	time_t ts_user_src = userSource.vocTimestamp();
+
+	// Find out what vocabulary we should write
+	string vocfname;
+	if (ts_user_src > 0)
+		vocfname = Path::userVocabulary();
+	else
+                vocfname = Path::vocabulary();
+
+	// Write out, with appropriate umask
+	mode_t prev_umask = umask(022);
+	write(vocfname);
+	umask(prev_umask);
 }
 
 void Vocabulary::write(const std::string& fname)
