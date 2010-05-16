@@ -1,4 +1,4 @@
-libept (1.0) unstable; urgency=low
+libept (1.0) experimental; urgency=low
 
   * Big debtags code simplification
      - no more indices to maintain, just read the text files
@@ -8,7 +8,7 @@ libept (1.0) unstable; urgency=low
     functions to handle apt-xapian-index
   * ept-cache superseded by axi-cache
 
- -- Enrico Zini <enrico@debian.org>  Mon, 10 May 2010 18:47:39 +0100
+ -- Enrico Zini <enrico@debian.org>  Sun, 16 May 2010 10:22:00 +0100
 
 libept (0.5.30) unstable; urgency=low
 
