@@ -1,3 +1,9 @@
+libept (1.0.1) unstable; urgency=low
+
+  * Upload to unstable
+
+ -- Enrico Zini <enrico@debian.org>  Mon, 21 Jun 2010 22:03:50 +0100
+
 libept (1.0) experimental; urgency=low
 
   * Big debtags code simplification
