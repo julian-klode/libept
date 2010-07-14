@@ -296,7 +296,7 @@ struct RecordIteratorImpl
 
 		lastOffset = vflist[idx]->Offset + vflist[idx]->Size;
 
-		return string(buffer+slack);
+		return string(buffer+slack, vflist[idx]->Size);
 	}
 };
 
