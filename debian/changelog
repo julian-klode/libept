@@ -1,3 +1,9 @@
+libept (1.0.2+test1) experimental; urgency=low
+
+  * Improved one assertion, added more prints, try a workaround
+
+ -- Enrico Zini <enrico@debian.org>  Wed, 14 Jul 2010 23:39:10 +0100
+
 libept (1.0.2+test0) experimental; urgency=low
 
   * Added debugging prints to help debug #587764
