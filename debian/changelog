@@ -1,8 +1,9 @@
 libept (1.0.2) unstable; urgency=low
 
   * Fixed a potential read-past-end-of-buffer error.
+  * Removed weekly cron job. Closes: #588408
 
- -- Enrico Zini <enrico@debian.org>  Wed, 14 Jul 2010 20:55:08 +0100
+ -- Enrico Zini <enrico@debian.org>  Wed, 14 Jul 2010 21:07:23 +0100
 
 libept (1.0.1) unstable; urgency=low
 
