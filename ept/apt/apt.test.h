@@ -111,9 +111,11 @@ struct TestApt : AptTestEnvironment {
     {
         string pkg("sp");
         Version ver = apt.candidateVersion(pkg);
+	cerr << "CAND VER " << ver.name() << " v " << ver.version() << endl;
         assert(apt.validate(ver) == ver);
 
         string record = apt.rawRecord(ver);
+	cerr << "GOT RECORD:" << endl << record << "---------" << endl;
         assert(record.find("Package: sp") != string::npos);
         assert(record.find("Section: text") != string::npos);
 
