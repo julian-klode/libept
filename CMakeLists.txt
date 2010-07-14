@@ -3,7 +3,7 @@ include( FindDoxygen )
 
 add_custom_target( unit )
 
-set( EPT_VERSION "1.0.1" )
+set( EPT_VERSION "1.0.2" )
 set( APT_INCLUDES "/usr/include/" CACHE STRING "apt include path" )
 set( APT_LINKDIRS "/usr/lib/" CACHE STRING "apt library path" )
 set( OPT_FLAGS "-O0 -g" CACHE STRING "optimization level" )
