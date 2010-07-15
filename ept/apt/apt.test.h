@@ -109,18 +109,16 @@ struct TestApt : AptTestEnvironment {
     // Check the raw record accessor
     Test rawRecord()
     {
-        string pkg("autobook");
+        string pkg("sp");
         Version ver = apt.candidateVersion(pkg);
-	cerr << "CAND VER " << ver.name() << " v " << ver.version() << endl;
-	assert(ver.isValid());
+        assert(ver.isValid());
         assert(apt.validate(ver) == ver);
 
         string record = apt.rawRecord(ver);
-	cerr << "GOT RECORD:" << endl << record << "---------" << endl;
-        assert(record.find("Package: autobook") != string::npos);
-        assert(record.find("Section: doc") != string::npos);
+        assert(record.find("Package: sp") != string::npos);
+        assert(record.find("Section: text") != string::npos);
 
-        record = apt.rawRecord(Version("autobook", "0.31415"));
+        record = apt.rawRecord(Version("sp", "0.31415"));
         assert_eq(record, string());
 
         assert_eq(apt.rawRecord(pkg), apt.rawRecord(apt.anyVersion(pkg)));
@@ -144,7 +142,6 @@ struct TestApt : AptTestEnvironment {
         for (Apt::record_iterator i = apt.recordBegin();
              i != apt.recordEnd(); ++i)
             {
-		cerr << "DEBUG Iterate record " << count << endl;
                 assert((*i).size() > 8);
                 assert_eq((*i).substr(0, 8), "Package:");
                 ++count;

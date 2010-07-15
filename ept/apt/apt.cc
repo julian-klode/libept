@@ -184,14 +184,12 @@ struct RecordIteratorImpl
 
 	RecordIteratorImpl(AptImplementation& apt) : _ref(0), apt(apt)
 	{
-cerr << "RIImpl PC " << apt.cache().HeaderP->PackageCount + 1 << endl;
 		// We already have an estimate of how many versions we're about to find
 		vflist.reserve(apt.cache().HeaderP->PackageCount + 1);
 
 		// Populate the vector of versions to print
 		for (pkgCache::PkgIterator pi = apt.cache().PkgBegin(); !pi.end(); ++pi)
 		{    
-cerr << "RIImpl HASPKG " << pi.Name() << endl;
 			if (pi->VersionList == 0)
 				continue;
 
@@ -205,7 +203,6 @@ cerr << "RIImpl HASPKG " << pi.Name() << endl;
 				vi = pi.CurrentVer();
 			}
 
-cerr << "RIImpl  CHOSENVER " << (vi.VerStr() ? vi.VerStr() : "(null)") << " FOR " << (vi.Arch() ? vi.Arch() : "(null)") << endl;
 			// Choose a valid file that contains the record for this version
 			pkgCache::VerFileIterator vfi = vi.FileList();
 			for ( ; !vfi.end(); ++vfi)
@@ -216,7 +213,6 @@ cerr << "RIImpl  CHOSENVER " << (vi.VerStr() ? vi.VerStr() : "(null)") << " FOR 
 			// from outside the archives (like from a locally built .deb
 			if (vfi.end() == true)
 			{
-cerr << "RIImpl  LOCALPKG" << endl;
 				for (pkgCache::VerIterator cur = pi.VersionList(); cur.end() != true; cur++)
 				{
 					for (vfi = cur.FileList(); vfi.end() == false; vfi++)
@@ -232,27 +228,20 @@ cerr << "RIImpl  LOCALPKG" << endl;
 						break;
 				}
 			}
-			else
-/**/				cerr << "RIImpl  HASFILE" << endl;
 			if (!vfi.end())
-			{
 				vflist.push_back(vfi);
-/**/				cerr << "RIImpl  TAKEN" << endl;
-			}
-			else
-/**/				cerr << "RIImpl  SKIPPED" << endl;
 		}
 
-		cerr << vflist.size() << " versions found" << endl;
+		//cerr << vflist.size() << " versions found" << endl;
 
 		sort(vflist.begin(), vflist.end(), localityCompare);
 
-		for (size_t i = 0; i < vflist.size(); ++i)
-		{
-			pkgCache::PkgFileIterator fi(apt.cache(), vflist[i]->File + apt.cache().PkgFileP);
-			cerr << i << ": " << fi.FileName() << ":" << vflist[i]->Offset << "-" << vflist[i]->Size << endl;
-		}
-		cerr << "Done indexing." << endl;
+		//for (size_t i = 0; i < vflist.size(); ++i)
+		//{
+		//	pkgCache::PkgFileIterator fi(apt.cache(), vflist[i]->File + apt.cache().PkgFileP);
+		//	cerr << i << ": " << fi.FileName() << ":" << vflist[i]->Offset << "-" << vflist[i]->Size << endl;
+		//}
+		//cerr << "Done indexing." << endl;
 	}
 
 	~RecordIteratorImpl()

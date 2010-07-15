@@ -1,3 +1,9 @@
+libept (1.0.3) unstable; urgency=low
+
+  * Removed debugging output and upload to unstable.
+
+ -- Enrico Zini <enrico@debian.org>  Thu, 15 Jul 2010 13:14:06 +0100
+
 libept (1.0.2+test4) experimental; urgency=low
 
   * Override sourcelist config option so we don't look for the custom name
