@@ -191,11 +191,10 @@ cerr << "RIImpl PC " << apt.cache().HeaderP->PackageCount + 1 << endl;
 		// Populate the vector of versions to print
 		for (pkgCache::PkgIterator pi = apt.cache().PkgBegin(); !pi.end(); ++pi)
 		{    
-cerr << "RIImpl HASPKG" << endl;
+cerr << "RIImpl HASPKG " << pi.Name() << endl;
 			if (pi->VersionList == 0)
 				continue;
 
-cerr << "RIImpl HASVER" << endl;
 			/* Get the candidate version or fallback on the installed version,
 			 * as usual */
 			pkgCache::VerIterator vi = apt.policy().GetCandidateVer(pi);
@@ -206,19 +205,18 @@ cerr << "RIImpl HASVER" << endl;
 				vi = pi.CurrentVer();
 			}
 
-cerr << "RIImpl CHOSENVER" << endl;
+cerr << "RIImpl  CHOSENVER " << (vi.VerStr() ? vi.VerStr() : "(null)") << " FOR " << (vi.Arch() ? vi.Arch() : "(null)") << endl;
 			// Choose a valid file that contains the record for this version
 			pkgCache::VerFileIterator vfi = vi.FileList();
 			for ( ; !vfi.end(); ++vfi)
 				if ((vfi.File()->Flags & pkgCache::Flag::NotSource) == 0)
 					break;
 
-cerr << "RIImpl ASKEDFILE" << endl;
 			// Handle packages whose candidate version is currently installed
 			// from outside the archives (like from a locally built .deb
 			if (vfi.end() == true)
 			{
-cerr << "RIImpl LOCALPKG" << endl;
+cerr << "RIImpl  LOCALPKG" << endl;
 				for (pkgCache::VerIterator cur = pi.VersionList(); cur.end() != true; cur++)
 				{
 					for (vfi = cur.FileList(); vfi.end() == false; vfi++)
@@ -234,8 +232,15 @@ cerr << "RIImpl LOCALPKG" << endl;
 						break;
 				}
 			}
+			else
+/**/				cerr << "RIImpl  HASFILE" << endl;
 			if (!vfi.end())
+			{
 				vflist.push_back(vfi);
+/**/				cerr << "RIImpl  TAKEN" << endl;
+			}
+			else
+/**/				cerr << "RIImpl  SKIPPED" << endl;
 		}
 
 		cerr << vflist.size() << " versions found" << endl;

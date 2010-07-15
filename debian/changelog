@@ -1,3 +1,9 @@
+libept (1.0.2+test3) experimental; urgency=low
+
+  * More debug info
+
+ -- Enrico Zini <enrico@debian.org>  Thu, 15 Jul 2010 11:57:35 +0100
+
 libept (1.0.2+test2) experimental; urgency=low
 
   * More debugging prints, and removed a useless constructor

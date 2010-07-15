@@ -57,6 +57,12 @@ string( REPLACE "\n" "" ARCH "${ARCH}" )
 
 add_custom_command(
   OUTPUT ${datastamp}
+  COMMAND echo "Apt config"
+  COMMAND apt-config dump
+  COMMAND echo -n "Dumpavail count: "
+  COMMAND apt-cache dumpavail |grep -c ^Package
+  COMMAND echo -n "Installed count: "
+  COMMAND dpkg -l |grep -c ^ii
   COMMAND mkdir -p test-env/etc test-env/state/lists/partial
 		           test-env/cache test-env/debtags
 			   test-env/cache/archives/partial test-env/desktop
