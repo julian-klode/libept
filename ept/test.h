@@ -26,6 +26,7 @@ struct AptTestEnvironment {
         _config->Set("Dir::Cache", "cache");
         _config->Set("Dir::State", "state");
         _config->Set("Dir::Etc", "etc");
+        _config->Set("Dir::Etc::sourcelist", "sources.list");
         _config->Set("Dir::State::status", TEST_ENV_DIR "dpkg-status");
         pkgInitSystem (*_config, _system);
     }

@@ -1,3 +1,10 @@
+libept (1.0.2+test4) experimental; urgency=low
+
+  * Override sourcelist config option so we don't look for the custom name
+    used in the buildds
+
+ -- Enrico Zini <enrico@debian.org>  Thu, 15 Jul 2010 12:09:54 +0100
+
 libept (1.0.2+test3) experimental; urgency=low
 
   * More debug info
