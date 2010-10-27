@@ -369,7 +369,7 @@ void Vocabulary::write(FILE* out)
 				t != f->second.m_tags.end(); t++)
 		{
 			//fprintf(stderr, "Writing tag %.*s\n", PFSTR(t->first));
-			writeDebStyleField(out, "Tag", f->first + "::" + t->first);
+			writeDebStyleField(out, "Tag", t->first);
 			for (std::map<std::string, std::string>::const_iterator j = t->second.begin();
 					j != t->second.end(); j++)
 				writeDebStyleField(out, j->first, j->second);
