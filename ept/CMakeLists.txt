@@ -21,7 +21,7 @@ set( testh ${debtagstesth} ${popcontesth}
 
 include_directories( ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} 
                      ${TAGCOLL_INCLUDE_DIRS} ${WIBBLE_INCLUDE_DIRS} )
-link_libraries( ${WIBBLE_LIBRARIES} ${TAGCOLL_LIBRARIES} apt-pkg xapian )
+link_libraries( ${WIBBLE_LIBRARIES} ${TAGCOLL_LIBRARIES} apt-pkg xapian -lpthread )
 add_definitions( -fexceptions -fPIC -fvisibility=default )
 
 add_library( ept SHARED ${src} )
