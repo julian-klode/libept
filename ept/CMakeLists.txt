@@ -80,8 +80,6 @@ install( TARGETS ept ept-static
   ARCHIVE DESTINATION lib )
 
 install( FILES ${ept_BINARY_DIR}/libept.pc DESTINATION lib/pkgconfig )
-install( FILES libept.m4 DESTINATION share/aclocal )
-
 install( FILES ${h_top} DESTINATION include/ept )
 install( FILES ${h_apt} DESTINATION include/ept/apt )
 install( FILES ${h_debtags} DESTINATION include/ept/debtags )

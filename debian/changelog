@@ -1,3 +1,10 @@
+libept (1.0.5) unstable; urgency=low
+
+  * Do not ship .m4 file anymore, as it's just a trivial invocation of
+    pkg-config
+
+ -- Enrico Zini <enrico@debian.org>  Sun, 20 Mar 2011 18:56:42 +0000
+
 libept (1.0.4) unstable; urgency=low
 
   * Fix broken tag names in /var/lib/debtags/vocabulary. Closes: #601417.
