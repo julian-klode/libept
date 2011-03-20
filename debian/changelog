@@ -2,8 +2,10 @@ libept (1.0.5) unstable; urgency=low
 
   * Do not ship .m4 file anymore, as it's just a trivial invocation of
     pkg-config
+  * Test for dpkg-maintscript-helper existance before invoking it.
+    Closes: #590220
 
- -- Enrico Zini <enrico@debian.org>  Sun, 20 Mar 2011 18:56:42 +0000
+ -- Enrico Zini <enrico@debian.org>  Sun, 20 Mar 2011 19:18:34 +0000
 
 libept (1.0.4) unstable; urgency=low
 
