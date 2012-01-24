@@ -1,3 +1,13 @@
+libept (1.0.6~exp1) experimental; urgency=low
+
+  * build against libapt in experimental
+  * debian/control:
+    - encode apt ABI version in libept1 package name
+  * ept/CMakeLists.txt:
+    - do not set "SOVERSION 1" anymore, use full VERSION instead
+
+ -- Michael Vogt <mvo@debian.org>  Tue, 24 Jan 2012 14:05:56 +0100
+
 libept (1.0.5) unstable; urgency=low
 
   * Do not ship .m4 file anymore, as it's just a trivial invocation of

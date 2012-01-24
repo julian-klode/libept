@@ -26,8 +26,8 @@ add_definitions( -fexceptions -fPIC -fvisibility=default )
 
 add_library( ept SHARED ${src} )
 add_library( ept-static STATIC ${src} )
-set_target_properties( ept PROPERTIES VERSION ${EPT_VERSION} SOVERSION 1 CLEAN_DIRECT_OUTPUT 1)
-set_target_properties( ept-static PROPERTIES VERSION ${EPT_VERSION} SOVERSION 1 OUTPUT_NAME "ept" CLEAN_DIRECT_OUTPUT 1)
+set_target_properties( ept PROPERTIES VERSION ${EPT_VERSION} CLEAN_DIRECT_OUTPUT 1)
+set_target_properties( ept-static PROPERTIES VERSION ${EPT_VERSION} OUTPUT_NAME "ept" CLEAN_DIRECT_OUTPUT 1)
 
 set( TEST_ENV_DIR ${ept_BINARY_DIR}/test-env/ )
 
