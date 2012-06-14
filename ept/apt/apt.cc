@@ -633,6 +633,13 @@ std::string Apt::rawRecord(const Version& ver) const
 	return std::string();
 }
 
+
+const pkgCache* Apt::aptPkgCache() const 
+{
+	return impl->m_cache;
+}
+
+
 void Apt::checkCacheUpdates()
 {
 	if (impl->m_open_timestamp < timestamp())

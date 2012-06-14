@@ -29,6 +29,8 @@
 
 #include <iterator>
 
+class pkgCache;
+
 namespace ept {
 namespace apt {
 
@@ -198,6 +200,7 @@ public:
 	Apt();
 	~Apt();
 
+
 	iterator begin() const;
 	iterator end() const;
 
@@ -257,6 +260,11 @@ public:
 	/// Get the raw package record for the given Version
 	std::string rawRecord(const Version& ver) const;
 
+	/// Returns the pointer to the internal libapt pkgCache object used.
+	const pkgCache* aptPkgCache() const;
+
+	
+	
 	/// Timestamp of when the apt index was last modified
 	time_t timestamp();
 
