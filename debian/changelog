@@ -1,3 +1,10 @@
+libept (1.0.8) unstable; urgency=low
+
+  * Applied Julien Cristau's patch to avoid unnecessary soname bumps.
+    Closes: #677532, #677535, #677536
+
+ -- Enrico Zini <enrico@debian.org>  Thu, 14 Jun 2012 20:32:47 +0200
+
 libept (1.0.7) unstable; urgency=low
 
   * Expose the underlying libapt-pkg
