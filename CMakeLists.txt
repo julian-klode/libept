@@ -3,8 +3,19 @@ include( FindDoxygen )
 
 add_custom_target( unit )
 
-set( LIBAPT_ABI_VERSION "4.12" )
-set( EPT_VERSION "1.0.7.${LIBAPT_ABI_VERSION}" )
+set( EPT_VERSION "1.0.7" )
+
+# Get the soversion from libapt-pkg to include in our own
+execute_process(
+	COMMAND "cc" "-xc" "-shared" "/dev/null" "-lapt-pkg"
+	)
+execute_process(
+	COMMAND "objdump" "-p" "a.out"
+	COMMAND "awk" "/NEEDED.*libapt-pkg/ { sub(\".*\\\\.so\\\\.\", \"\"); print }"
+	OUTPUT_VARIABLE LIBAPT_ABI_VERSION
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+set( LIBEPT_SOVERSION "1.aptpkg${LIBAPT_ABI_VERSION}" )
 set( APT_INCLUDES "/usr/include/" CACHE STRING "apt include path" )
 set( APT_LINKDIRS "/usr/lib/" CACHE STRING "apt library path" )
 set( OPT_FLAGS "-O0 -g" CACHE STRING "optimization level" )

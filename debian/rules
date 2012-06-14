@@ -10,7 +10,7 @@ DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
 
 DEB_MAKE_CHECK_TARGET := unit
 
-DEB_DH_MAKESHLIBS_ARGS_libept0 = -V
+DEB_DH_MAKESHLIBS_ARGS_libept1.4.12 = -V
 
 # comment out CONFIGURE and uncomment CMAKE flags to use cmake
 #DEB_CONFIGURE_EXTRA_FLAGS += --disable-shared --with-pic
