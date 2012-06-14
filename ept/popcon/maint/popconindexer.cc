@@ -7,6 +7,7 @@
 
 #include <tagcoll/diskindex/mmap.h>
 
+#include <unistd.h>
 #include <set>
 #include <string>
 #include <cstdio>
