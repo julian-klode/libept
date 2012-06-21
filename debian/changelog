@@ -1,3 +1,11 @@
+libept (1.0.9) unstable; urgency=low
+
+  [ Adam Conrad ]
+  * Add -Wl,--no-as-needed to the -lapt-pkg linking trick, as it
+    fails to link anything if the toolchain defaults to as-neeed.
+
+ -- Enrico Zini <enrico@debian.org>  Thu, 21 Jun 2012 10:11:57 +0200
+
 libept (1.0.8) unstable; urgency=low
 
   * Applied Julien Cristau's patch to avoid unnecessary soname bumps.

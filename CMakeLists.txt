@@ -3,11 +3,11 @@ include( FindDoxygen )
 
 add_custom_target( unit )
 
-set( EPT_VERSION "1.0.8" )
+set( EPT_VERSION "1.0.9" )
 
 # Get the soversion from libapt-pkg to include in our own
 execute_process(
-	COMMAND "cc" "-xc" "-shared" "/dev/null" "-lapt-pkg"
+	COMMAND "cc" "-xc" "-shared" "-Wl,--no-as-needed" "/dev/null" "-lapt-pkg"
 	)
 execute_process(
 	COMMAND "objdump" "-p" "a.out"
