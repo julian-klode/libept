@@ -2,6 +2,7 @@
 #include <ept/popcon/maint/path.h>
 
 #include <wibble/string.h>
+#include <wibble/sys/fs.h>
 
 #include <tagcoll/input/zlib.h>
 #include <tagcoll/input/stdio.h>
@@ -13,6 +14,14 @@ using namespace wibble;
 
 namespace ept {
 namespace popcon {
+
+SourceDir::SourceDir(const std::string& path)
+    : path(path)
+{
+}
+SourceDir::~SourceDir()
+{
+}
 
 SourceDir::FileType SourceDir::fileType(const std::string& name)
 {
@@ -26,16 +35,22 @@ SourceDir::FileType SourceDir::fileType(const std::string& name)
 
 time_t SourceDir::timestamp()
 {
-	if (!valid()) return 0;
+    auto_ptr<sys::fs::Directory> dir;
+    try {
+        dir.reset(new sys::fs::Directory(path));
+    } catch (wibble::exception::System& e) {
+        return 0;
+    }
 
-	time_t max = 0;
-	for (const_iterator d = begin(); d != end(); ++d)
-	{
-		FileType type = fileType(d->d_name);
-		if (type == SKIP) continue;
+    time_t max = 0;
+    for (sys::fs::Directory::const_iterator d = dir->begin(); d != dir->end(); ++d)
+    {
+        string name = *d;
+        FileType type = fileType(name);
+        if (type == SKIP) continue;
 
-		time_t ts = Path::timestamp(str::joinpath(path(), d->d_name));
-		if (ts > max) max = ts;
+        time_t ts = Path::timestamp(str::joinpath(path, name));
+        if (ts > max) max = ts;
 	}
 
 	return max;
@@ -109,16 +124,23 @@ static void parseScores(tagcoll::input::Input& in, map<std::string, Score>& out,
 
 bool SourceDir::readScores(map<std::string, Score>& out, size_t& submissions)
 {
-	if (!valid()) return false;
-	bool done = false;
+    auto_ptr<sys::fs::Directory> dir;
+    try {
+        dir.reset(new sys::fs::Directory(path));
+    } catch (wibble::exception::System& e) {
+        return false;
+    }
 
-	for (const_iterator d = begin(); d != end(); ++d)
-	{
-		FileType type = fileType(d->d_name);
+    bool done = false;
+
+    for (sys::fs::Directory::const_iterator d = dir->begin(); d != dir->end(); ++d)
+    {
+        string name = *d;
+        FileType type = fileType(name);
 		if (type == RAW)
 		{
-			// Read uncompressed data
-			tagcoll::input::Stdio in(str::joinpath(path(), d->d_name));
+            // Read uncompressed data
+            tagcoll::input::Stdio in(str::joinpath(path, name));
 
 			// Read the scores
 			parseScores(in, out, submissions);
@@ -126,8 +148,8 @@ bool SourceDir::readScores(map<std::string, Score>& out, size_t& submissions)
 		}
 		else if (type == RAWGZ)
 		{
-			// Read compressed data
-			tagcoll::input::Zlib in(str::joinpath(path(), d->d_name));
+            // Read compressed data
+            tagcoll::input::Zlib in(str::joinpath(path, name));
 
 			// Read the scores
 			parseScores(in, out, submissions);

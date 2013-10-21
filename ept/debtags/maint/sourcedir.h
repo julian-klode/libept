@@ -24,7 +24,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <wibble/sys/fs.h>
 #include <string>
 
 namespace ept {
@@ -35,17 +34,20 @@ class Vocabulary;
 /**
  * Access a directory containing Debtags data files
  */
-class SourceDir : public wibble::sys::fs::Directory
+class SourceDir
 {
 protected:
 	enum FileType { SKIP, TAG, VOC, TAGGZ, VOCGZ };
+
+    std::string path;
 
 	// Check if a file name is a tag file, a vocabulary file or a file to skip.
 	// Please notice that it works on file names, not paths.
 	FileType fileType(const std::string& name);
 
 public:
-	SourceDir(const std::string& path) : Directory(path) {}
+    SourceDir(const std::string& path);
+    ~SourceDir();
 
 	/// Return the time of the newest file in the source directory
 	time_t timestamp();

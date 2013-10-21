@@ -3,14 +3,24 @@
 #include <ept/debtags/maint/path.h>
 
 #include <wibble/string.h>
+#include <wibble/sys/fs.h>
 
 #include <tagcoll/input/zlib.h>
 #include <tagcoll/input/stdio.h>
 
+using namespace std;
 using namespace wibble;
 
 namespace ept {
 namespace debtags {
+
+SourceDir::SourceDir(const std::string& path)
+    : path(path)
+{
+}
+SourceDir::~SourceDir()
+{
+}
 
 SourceDir::FileType SourceDir::fileType(const std::string& name)
 {
@@ -42,16 +52,22 @@ SourceDir::FileType SourceDir::fileType(const std::string& name)
 
 time_t SourceDir::timestamp()
 {
-	if (!valid()) return 0;
+    auto_ptr<sys::fs::Directory> dir;
+    try {
+        dir.reset(new sys::fs::Directory(path));
+    } catch (wibble::exception::System& e) {
+        return 0;
+    }
 
-	time_t max = 0;
-	for (const_iterator d = begin(); d != end(); ++d)
-	{
-		FileType type = fileType(d->d_name);
-		if (type == SKIP) continue;
+    time_t max = 0;
+    for (sys::fs::Directory::const_iterator d = dir->begin(); d != dir->end(); ++d)
+    {
+        string name = *d;
+        FileType type = fileType(name);
+        if (type == SKIP) continue;
 
-		time_t ts = Path::timestamp(str::joinpath(path(), d->d_name));
-		if (ts > max) max = ts;
+        time_t ts = Path::timestamp(str::joinpath(path, name));
+        if (ts > max) max = ts;
 	}
 
 	return max;
@@ -59,16 +75,22 @@ time_t SourceDir::timestamp()
 
 time_t SourceDir::vocTimestamp()
 {
-	if (!valid()) return 0;
+    auto_ptr<sys::fs::Directory> dir;
+    try {
+        dir.reset(new sys::fs::Directory(path));
+    } catch (wibble::exception::System& e) {
+        return 0;
+    }
 
-	time_t max = 0;
-	for (const_iterator d = begin(); d != end(); ++d)
-	{
-		FileType type = fileType(d->d_name);
-		if (type != VOC and type != VOCGZ) continue;
+    time_t max = 0;
+    for (sys::fs::Directory::const_iterator d = dir->begin(); d != dir->end(); ++d)
+    {
+        string name = *d;
+        FileType type = fileType(name);
+        if (type != VOC and type != VOCGZ) continue;
 
-		time_t ts = Path::timestamp(str::joinpath(path(), d->d_name));
-		if (ts > max) max = ts;
+        time_t ts = Path::timestamp(str::joinpath(path, name));
+        if (ts > max) max = ts;
 	}
 
 	return max;
@@ -76,16 +98,22 @@ time_t SourceDir::vocTimestamp()
 
 time_t SourceDir::tagTimestamp()
 {
-	if (!valid()) return 0;
+    auto_ptr<sys::fs::Directory> dir;
+    try {
+        dir.reset(new sys::fs::Directory(path));
+    } catch (wibble::exception::System& e) {
+        return 0;
+    }
 
-	time_t max = 0;
-	for (const_iterator d = begin(); d != end(); ++d)
-	{
-		FileType type = fileType(d->d_name);
-		if (type != TAG and type != TAGGZ) continue;
+    time_t max = 0;
+    for (sys::fs::Directory::const_iterator d = dir->begin(); d != dir->end(); ++d)
+    {
+        string name = *d;
+        FileType type = fileType(name);
+        if (type != TAG and type != TAGGZ) continue;
 
-		time_t ts = Path::timestamp(str::joinpath(path(), d->d_name));
-		if (ts > max) max = ts;
+        time_t ts = Path::timestamp(str::joinpath(path, name));
+        if (ts > max) max = ts;
 	}
 
 	return max;
@@ -93,24 +121,30 @@ time_t SourceDir::tagTimestamp()
 
 void SourceDir::readVocabularies(Vocabulary& out)
 {
-	if (!valid()) return;
+    auto_ptr<sys::fs::Directory> dir;
+    try {
+        dir.reset(new sys::fs::Directory(path));
+    } catch (wibble::exception::System& e) {
+        return;
+    }
 
-	for (const_iterator d = begin(); d != end(); ++d)
-	{
-		if (d->d_name[0] == '.') continue;
-		FileType type = fileType(d->d_name);
+    for (sys::fs::Directory::const_iterator d = dir->begin(); d != dir->end(); ++d)
+    {
+        string name = *d;
+        if (name[0] == '.') continue;
+        FileType type = fileType(name);
 		if (type == VOC)
 		{
-			// Read uncompressed data
-			tagcoll::input::Stdio in(str::joinpath(path(), d->d_name));
+            // Read uncompressed data
+            tagcoll::input::Stdio in(str::joinpath(path, name));
 
 			// Read the vocabulary
 			out.read(in);
 		}
 		else if (type == VOCGZ)
 		{
-			// Read compressed data
-			tagcoll::input::Zlib in(str::joinpath(path(), d->d_name));
+            // Read compressed data
+            tagcoll::input::Zlib in(str::joinpath(path, name));
 
 			// Read the vocabulary
 			out.read(in);

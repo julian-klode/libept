@@ -9,6 +9,9 @@
 
 #include <tagcoll/input/zlib.h>
 #include <tagcoll/input/stdio.h>
+#include <wibble/sys/fs.h>
+
+using namespace wibble;
 
 namespace ept {
 namespace debtags {
@@ -16,23 +19,29 @@ namespace debtags {
 template<typename OUT>
 void SourceDir::readTags(OUT out)
 {
-	if (!valid()) return;
+    auto_ptr<sys::fs::Directory> dir;
+    try {
+        dir.reset(new sys::fs::Directory(path));
+    } catch (wibble::exception::System& e) {
+        return;
+    }
 
-	for (const_iterator d = begin(); d != end(); ++d)
-	{
-		FileType type = fileType(d->d_name);
+    for (sys::fs::Directory::const_iterator d = dir->begin(); d != dir->end(); ++d)
+    {
+        string name = *d;
+        FileType type = fileType(name);
 		if (type == TAG)
 		{
-			// Read uncompressed data
-			tagcoll::input::Stdio in(path() + "/" + d->d_name);
+            // Read uncompressed data
+            tagcoll::input::Stdio in(path + "/" + name);
 
 			// Read the collection
 			tagcoll::textformat::parse(in, out);
 		}
 		else if (type == TAGGZ)
 		{
-			// Read compressed data
-			tagcoll::input::Zlib in(path() + "/" + d->d_name);
+            // Read compressed data
+            tagcoll::input::Zlib in(path + "/" + name);
 
 			// Read the collection
 			tagcoll::textformat::parse(in, out);

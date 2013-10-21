@@ -25,7 +25,6 @@
  */
 
 #include <ept/popcon/popcon.h>
-#include <wibble/sys/fs.h>
 #include <string>
 #include <map>
 
@@ -35,17 +34,20 @@ namespace popcon {
 /**
  * Access a directory containing Debtags data files
  */
-class SourceDir : public wibble::sys::fs::Directory
+class SourceDir
 {
 protected:
 	enum FileType { SKIP, RAW, RAWGZ };
+
+    std::string path;
 
 	// Check if a file name is a tag file, a vocabulary file or a file to skip.
 	// Please notice that it works on file names, not paths.
 	FileType fileType(const std::string& name);
 
 public:
-	SourceDir(const std::string& path) : Directory(path) {}
+    SourceDir(const std::string& path);
+    ~SourceDir();
 
 	/// Return the time of the newest file in the source directory
 	time_t timestamp();
