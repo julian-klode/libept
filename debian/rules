@@ -1,33 +1,23 @@
 #!/usr/bin/make -f
 
-include /usr/share/cdbs/1/rules/debhelper.mk
-include /usr/share/cdbs/1/class/cmake.mk
+BUILDDIR = $(CURDIR)/debian/build
 
-#DEB_CMAKE_EXTRA_FLAGS += -DOPT_FLAGS="" 
+%:
+	dh $@ --buildsystem=cmake --builddirectory=$(BUILDDIR)
 
+override_dh_fixperms:
+	dh_fixperms
+	test -e /usr/bin/dh_buildinfo && dh_buildinfo
 
-DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
+override_dh_auto_build:
+	dh_auto_build
+	make -C $(BUILDDIR) unit
+	make -C $(BUILDDIR) doc
 
-DEB_MAKE_CHECK_TARGET := unit
-
-DEB_DH_MAKESHLIBS_ARGS_libept1.4.12 = -V
-
-# comment out CONFIGURE and uncomment CMAKE flags to use cmake
-#DEB_CONFIGURE_EXTRA_FLAGS += --disable-shared --with-pic
-#DEB_CMAKE_EXTRA_FLAGS += -DBUILD_TESTING=ON
-
-# Store build information
-common-binary-post-install-arch common-binary-post-install-indep::
-	dh_buildinfo
-
-build/libept-dev::
-	make -C ${DEB_BUILDDIR} doc
-
-install/libept-dev::
-	mkdir -p debian/tmp/usr/share/doc/libept-dev/
-	cp -r ${DEB_BUILDDIR}/doc/html debian/tmp/usr/share/doc/libept-dev/
-	cp ${DEB_BUILDDIR}/doc/libept.doxytags debian/tmp/usr/share/doc/libept-dev/
-	gzip -9 debian/tmp/usr/share/doc/libept-dev/libept.doxytags
+override_dh_auto_install:
+	dh_auto_install
+	dh_installdocs -plibept-dev -n $(BUILDDIR)/doc/html
+	dh_installdocs -plibept-dev -n $(BUILDDIR)/doc/libept.doxytags
 
 debsrc:
 	debian/check_versions
