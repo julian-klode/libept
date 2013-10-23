@@ -16,7 +16,7 @@ namespace ept {
 namespace popcon {
 
 SourceDir::SourceDir(const std::string& path)
-    : path(path)
+    : sys::fs::Directory(path)
 {
 }
 SourceDir::~SourceDir()
@@ -35,21 +35,16 @@ SourceDir::FileType SourceDir::fileType(const std::string& name)
 
 time_t SourceDir::timestamp()
 {
-    auto_ptr<sys::fs::Directory> dir;
-    try {
-        dir.reset(new sys::fs::Directory(path));
-    } catch (wibble::exception::System& e) {
-        return 0;
-    }
+    if (!exists()) return 0;
 
     time_t max = 0;
-    for (sys::fs::Directory::const_iterator d = dir->begin(); d != dir->end(); ++d)
+    for (const_iterator d = begin(); d != end(); ++d)
     {
         string name = *d;
         FileType type = fileType(name);
         if (type == SKIP) continue;
 
-        time_t ts = Path::timestamp(str::joinpath(path, name));
+        time_t ts = Path::timestamp(str::joinpath(m_path, name));
         if (ts > max) max = ts;
 	}
 
@@ -124,23 +119,18 @@ static void parseScores(tagcoll::input::Input& in, map<std::string, Score>& out,
 
 bool SourceDir::readScores(map<std::string, Score>& out, size_t& submissions)
 {
-    auto_ptr<sys::fs::Directory> dir;
-    try {
-        dir.reset(new sys::fs::Directory(path));
-    } catch (wibble::exception::System& e) {
-        return false;
-    }
+    if (!exists()) return false;
 
     bool done = false;
 
-    for (sys::fs::Directory::const_iterator d = dir->begin(); d != dir->end(); ++d)
+    for (const_iterator d = begin(); d != end(); ++d)
     {
         string name = *d;
         FileType type = fileType(name);
 		if (type == RAW)
 		{
             // Read uncompressed data
-            tagcoll::input::Stdio in(str::joinpath(path, name));
+            tagcoll::input::Stdio in(str::joinpath(m_path, name));
 
 			// Read the scores
 			parseScores(in, out, submissions);
@@ -149,7 +139,7 @@ bool SourceDir::readScores(map<std::string, Score>& out, size_t& submissions)
 		else if (type == RAWGZ)
 		{
             // Read compressed data
-            tagcoll::input::Zlib in(str::joinpath(path, name));
+            tagcoll::input::Zlib in(str::joinpath(m_path, name));
 
 			// Read the scores
 			parseScores(in, out, submissions);

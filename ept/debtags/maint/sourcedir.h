@@ -7,7 +7,7 @@
  */
 
 /*
- * Copyright (C) 2003,2004,2005,2006,2007  Enrico Zini <enrico@debian.org>
+ * Copyright (C) 2003--2013  Enrico Zini <enrico@debian.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
  */
 
 #include <string>
+#include <wibble/sys/fs.h>
 
 namespace ept {
 namespace debtags {
@@ -34,12 +35,10 @@ class Vocabulary;
 /**
  * Access a directory containing Debtags data files
  */
-class SourceDir
+class SourceDir : public wibble::sys::fs::Directory
 {
 protected:
 	enum FileType { SKIP, TAG, VOC, TAGGZ, VOCGZ };
-
-    std::string path;
 
 	// Check if a file name is a tag file, a vocabulary file or a file to skip.
 	// Please notice that it works on file names, not paths.

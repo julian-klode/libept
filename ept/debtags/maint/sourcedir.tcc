@@ -19,21 +19,16 @@ namespace debtags {
 template<typename OUT>
 void SourceDir::readTags(OUT out)
 {
-    auto_ptr<sys::fs::Directory> dir;
-    try {
-        dir.reset(new sys::fs::Directory(path));
-    } catch (wibble::exception::System& e) {
-        return;
-    }
+    if (!exists()) return;
 
-    for (sys::fs::Directory::const_iterator d = dir->begin(); d != dir->end(); ++d)
+    for (const_iterator d = begin(); d != end(); ++d)
     {
         string name = *d;
         FileType type = fileType(name);
 		if (type == TAG)
 		{
             // Read uncompressed data
-            tagcoll::input::Stdio in(path + "/" + name);
+            tagcoll::input::Stdio in(m_path + "/" + name);
 
 			// Read the collection
 			tagcoll::textformat::parse(in, out);
@@ -41,7 +36,7 @@ void SourceDir::readTags(OUT out)
 		else if (type == TAGGZ)
 		{
             // Read compressed data
-            tagcoll::input::Zlib in(path + "/" + name);
+            tagcoll::input::Zlib in(m_path + "/" + name);
 
 			// Read the collection
 			tagcoll::textformat::parse(in, out);

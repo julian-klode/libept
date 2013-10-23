@@ -1,3 +1,12 @@
+libept (1.0.10) unstable; urgency=low
+
+  * Dropped Conflict on long-disappeared version of debtags
+  * Ported to debhelper
+  * Ported to libwibble 1.1
+  * Removed obsolete debian/README
+
+ -- Enrico Zini <enrico@debian.org>  Thu, 24 Oct 2013 01:36:13 +0200
+
 libept (1.0.9) unstable; urgency=low
 
   [ Adam Conrad ]
