@@ -1,3 +1,10 @@
+libept (1.0.11) unstable; urgency=low
+
+  * Added explicit template instantiation with the symbols aptitude needs.
+    Closes: #727540
+
+ -- Enrico Zini <enrico@debian.org>  Thu, 24 Oct 2013 19:02:55 +0200
+
 libept (1.0.10) unstable; urgency=low
 
   * Dropped Conflict on long-disappeared version of debtags

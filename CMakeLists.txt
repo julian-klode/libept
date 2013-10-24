@@ -3,7 +3,7 @@ include( FindDoxygen )
 
 add_custom_target( unit )
 
-set( EPT_VERSION "1.0.10" )
+set( EPT_VERSION "1.0.11" )
 
 # Get the soversion from libapt-pkg to include in our own
 execute_process(
