@@ -210,4 +210,7 @@ void Debtags::sendPatch(const PatchList<std::string, std::string>& patch)
 #include <tagcoll/TextFormat.tcc>
 //#include <tagcoll/stream/filters.tcc>
 
+// Explicit template instantiations for our stuff
+template class tagcoll::coll::Fast<std::string, std::string>;
+
 // vim:set ts=4 sw=4:
