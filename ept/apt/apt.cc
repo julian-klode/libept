@@ -31,7 +31,6 @@
 #include <apt-pkg/cachefile.h>
 
 #include <wibble/sys/fs.h>
-#include <sys/stat.h>
 
 #include <vector>
 #include <algorithm>
@@ -47,13 +46,8 @@ static time_t aptTimestamp()
 {
     namespace wfs = wibble::sys::fs;
 
-    std::auto_ptr<struct stat> st = wfs::stat(
-        _config->FindFile( "Dir::Cache::pkgcache" ) );
-    time_t t1 = st.get() == NULL ? 0 : st->st_mtime;
- 
-    std::auto_ptr<struct stat> st1 = wfs::stat(
-        _config->FindFile( "Dir::State::status" ) );
-    time_t t2 = st1.get() == NULL ? 0 : st1->st_mtime;
+    time_t t1 = wfs::timestamp(_config->FindFile("Dir::Cache::pkgcache"), 0);
+    time_t t2 = wfs::timestamp(_config->FindFile("Dir::State::status"), 0);
  
     return t1 > t2 ? t1 : t2;
 }

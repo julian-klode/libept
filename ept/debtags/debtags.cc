@@ -39,10 +39,9 @@
 #include <sstream>
 
 #include <sys/wait.h>	// WIFEXITED WEXITSTATUS
-#include <sys/types.h>	// getpwuid, stat, mkdir, getuid
-#include <sys/stat.h>	// stat, mkdir
+#include <sys/types.h>	// getpwuid, getuid
 #include <pwd.h>	// getpwuid
-#include <unistd.h>	// stat, getuid
+#include <unistd.h>	// getuid
 
 
 using namespace std;

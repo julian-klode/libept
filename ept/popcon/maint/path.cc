@@ -28,10 +28,9 @@
 #include <wibble/sys/fs.h>
 #include <wibble/string.h>
 
-#include <sys/types.h>	// getpwuid, stat, mkdir, getuid
-#include <sys/stat.h>	// stat, mkdir
+#include <sys/types.h>	// getpwuid, getuid
 #include <pwd.h>		// getpwuid
-#include <unistd.h>		// stat, getuid
+#include <unistd.h>		// getuid
 
 using namespace wibble;
 
@@ -65,8 +64,7 @@ int Path::access( const std::string &s, int m ) {
 }
 
 time_t Path::timestamp( const std::string& file ) {
-	std::auto_ptr<struct stat> st = wibble::sys::fs::stat(file);
-	return st.get() == NULL ? 0 : st->st_mtime;
+    return sys::fs::timestamp(file, 0);
 }
 
 void Path::setPopconSourceDir( const std::string &s )

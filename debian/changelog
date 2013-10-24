@@ -1,3 +1,10 @@
+libept (1.0.12) unstable; urgency=low
+
+  * Fixes a case of sizeof(struct stat) disagreeing between libwibble and
+    libept on some architectures.
+
+ -- Enrico Zini <enrico@debian.org>  Thu, 24 Oct 2013 20:55:21 +0200
+
 libept (1.0.11) unstable; urgency=low
 
   * Added explicit template instantiation with the symbols aptitude needs.

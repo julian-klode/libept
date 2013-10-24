@@ -26,8 +26,6 @@
 
 #include <string>
 
-struct stat;
-
 namespace ept {
 namespace popcon {
 

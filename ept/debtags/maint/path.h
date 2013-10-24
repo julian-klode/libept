@@ -23,8 +23,6 @@
 
 #include <string>
 
-struct stat;
-
 #ifndef EPT_DEBTAGS_PATH_H
 #define EPT_DEBTAGS_PATH_H
 

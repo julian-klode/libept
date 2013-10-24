@@ -51,11 +51,7 @@ std::string path_db()
 time_t timestamp()
 {
 	string tsfile = str::joinpath(m_index_dir, "update-timestamp");
-	std::auto_ptr<struct stat> st = sys::fs::stat(tsfile);
-	if (st.get())
-		return st->st_mtime;
-	else
-		return 0;
+    return sys::fs::timestamp(tsfile, 0);
 }
 
 
