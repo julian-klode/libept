@@ -1,6 +1,6 @@
 Source: libept
 Section: libdevel
-Priority: important
+Priority: optional
 Maintainer: Enrico Zini <enrico@debian.org>
 Uploaders: Petr Rockai <mornfall@debian.org>
 Build-Depends:

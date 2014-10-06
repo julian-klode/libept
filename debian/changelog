@@ -2,8 +2,9 @@ libept (1.0.12.1) unstable; urgency=medium
 
   * Redone parsing of Tag fields, to cope with multiline fields
   * Get tag data from /var/lib/debtags/package-tags and
-    /var/lib/debtags/vocabulary if they are available. Closes: #762347.
+    /var/lib/debtags/vocabulary if they are available. Closes: #762347
   * Updated standards-version, no changes required.
+  * Set priority to optional. Closes: #741632
 
  -- Enrico Zini <enrico@debian.org>  Mon, 06 Oct 2014 14:36:56 +0200
 
