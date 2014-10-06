@@ -39,7 +39,6 @@ Description: High-level library for managing Debian package information
 Package: libept1.4.12
 Section: libs
 Architecture: any
-Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: High-level library for managing Debian package information
@@ -58,6 +57,7 @@ Description: High-level library for managing Debian package information
 Package: ept-cache
 Architecture: all
 Section: misc
+Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends}, apt-xapian-index (>= 0.30)
 Recommends: debtags
 Description: Obsolete commandline tool to search the package archive
