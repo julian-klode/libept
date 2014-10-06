@@ -30,6 +30,9 @@ SourceDir::FileType SourceDir::fileType(const std::string& name)
 	// extension)
 	if (name.size() <= 4) return SKIP;
 
+    if (name == "package-tags") return TAG;
+    if (name == "vocabulary") return VOC;
+
 	// Only look at .voc and .tag files
 	std::string ext(name, name.size() - 4);
 	if (ext == ".voc")

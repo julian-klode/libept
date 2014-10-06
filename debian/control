@@ -10,7 +10,7 @@ Build-Depends:
   libwibble-dev (>= 1.1), libwibble-dev (<< 2.0),
   libtagcoll2-dev (>= 2.0.6), libtagcoll2-dev (<< 2.1),
   libxapian-dev (>= 1.0.5)
-Standards-Version: 3.9.4.0
+Standards-Version: 3.9.6.0
 Vcs-Git: git://git.debian.org/git/debtags/libept.git
 Vcs-Browser: http://git.debian.org/?p=debtags/libept.git
 

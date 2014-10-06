@@ -66,50 +66,130 @@ std::string PackageRecord::parseLongDescription(const std::string& def, const st
 	}
 }
 
+namespace {
+
+struct Tagparser
+{
+    set<string>& res;
+    string cur_tag;
+    bool has_braces;
+
+    Tagparser(set<string>& res) : res(res) {}
+
+    void expand_tag_braces(const std::string& tag)
+    {
+        size_t begin = tag.find('{');
+        if (begin != string::npos)
+        {
+            string prefix(tag, 0, begin);
+            ++begin;
+            size_t end;
+            while ((end = tag.find(',', begin)) != string::npos)
+            {
+                res.insert(prefix + tag.substr(begin, end-begin));
+                begin = end + 1;
+            }
+            res.insert(prefix + tag.substr(begin, tag.size() - 1 - begin));
+        }
+    }
+
+    void reset_tag()
+    {
+        cur_tag.clear();
+        has_braces = false;
+    }
+
+    void have_tag()
+    {
+        if (has_braces)
+            expand_tag_braces(cur_tag);
+        else
+            res.insert(cur_tag);
+        reset_tag();
+    }
+
+    void parse(const std::string& s)
+    {
+        enum State {
+            SEP,
+            TAG,
+            BRACES,
+        } state = SEP;
+
+        reset_tag();
+
+        // Tokenize, dealing with braces
+        for (string::const_iterator c = s.begin(); c != s.end();)
+        {
+            switch (state)
+            {
+                case SEP:
+                    switch (*c)
+                    {
+                        case ' ':
+                        case '\t':
+                        case '\n':
+                        case ',':
+                            ++c;
+                            break;
+                        default:
+                            state = TAG;
+                            break;
+                    }
+                    break;
+                case TAG:
+                    switch (*c)
+                    {
+                        case ' ':
+                        case '\t':
+                        case '\n':
+                        case ',':
+                            ++c;
+                            have_tag();
+                            state = SEP;
+                            break;
+                        case '{':
+                            cur_tag += *c;
+                            ++c;
+                            has_braces = true;
+                            state = BRACES;
+                            break;
+                        default:
+                            cur_tag += *c;
+                            ++c;
+                            break;
+                    }
+                    break;
+                case BRACES:
+                    cur_tag += *c;
+                    ++c;
+                    switch (*c)
+                    {
+                        case '}':
+                            state = TAG;
+                            break;
+                    }
+                    break;
+            }
+        }
+        if (!cur_tag.empty())
+            have_tag();
+    }
+};
+
+}
+
 std::set<std::string> PackageRecord::parseTags(const std::set<std::string>& def, const std::string& str) const
 {
-	if (str == string())
-		return def;
+    if (str == string())
+        return def;
 
-	set<string> res;
+    set<string> res;
 
-	size_t pos = 0;
-	while (pos < str.size())
-	{
-		string tag;
-		size_t i = str.find(", ", pos);
-		if (i == string::npos)
-			tag = str.substr(pos);
-		else
-			tag = str.substr(pos, i-pos);
+    Tagparser parser(res);
+    parser.parse(str);
 
-		// Check if we need curly brace expansion
-		if (tag[tag.size() - 1] == '}')
-		{
-			size_t begin = tag.find('{');
-			if (begin != string::npos)
-			{
-				string prefix(tag, 0, begin);
-				++begin;
-				size_t end;
-				while ((end = tag.find(',', begin)) != string::npos)
-				{
-					res.insert(prefix + tag.substr(begin, end-begin));
-					begin = end + 1;
-				}
-				res.insert(prefix + tag.substr(begin, tag.size() - 1 - begin));
-			}
-		} else {
-			res.insert(tag);
-		}
-
-		if (i == string::npos)
-			break;
-		else
-			pos = i + 2;
-	}
-
-	return res;
+    return res;
 }
 
 }
