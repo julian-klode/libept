@@ -64,8 +64,8 @@ add_custom_command(
   COMMAND cp -a ${datadir}/etc/sources.list test-env/etc/
   COMMAND sed -e s,i386,${ARCH}, < ${datadir}/dpkg-status > test-env/dpkg-status
   COMMAND cp -a ${datadir}/desktop/*.desktop test-env/desktop/
-  COMMAND cp ${datadir}/debtags/package-tags test-env/debtags/test.tag
-  COMMAND cp ${datadir}/debtags/vocabulary test-env/debtags/test.voc
+  COMMAND cp ${datadir}/debtags/package-tags test-env/debtags/package-tags
+  COMMAND cp ${datadir}/debtags/vocabulary test-env/debtags/vocabulary
   COMMAND mkdir -p test-env/debtags/empty
   COMMAND mkdir -p test-env/debtags/user
   COMMAND mkdir -p test-env/xapian/

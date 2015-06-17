@@ -12,6 +12,7 @@
 #include <apt-pkg/progress.h>
 #include <apt-pkg/pkgcachegen.h>
 #include <apt-pkg/init.h>
+#include <cstdlib>
 
 
 #ifndef EPT_TEST_H
@@ -44,6 +45,33 @@ struct DebtagsTestEnvironment : AptTestEnvironment {
           odusd( TEST_ENV_DIR "debtags/"),
           oduid( TEST_ENV_DIR "debtags/")
     {}
+};
+
+struct EnvOverride
+{
+    const char* name;
+    bool old_value_set;
+    std::string old_value;
+
+    EnvOverride(const char* name, const char* value)
+        : name(name)
+    {
+        const char* old = getenv(name);
+        if (old)
+        {
+            old_value_set = true;
+            old_value = old;
+        } else
+            old_value_set = false;
+        setenv(name, value, 1);
+    }
+    ~EnvOverride()
+    {
+        if (old_value_set)
+            setenv(name, old_value.c_str(), 1);
+        else
+            unsetenv(name);
+    }
 };
 
 #endif

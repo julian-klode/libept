@@ -20,20 +20,19 @@
 
 #include <ept/debtags/vocabulary.h>
 #include <ept/debtags/maint/debdbparser.h>
-#include <ept/debtags/maint/path.h>
-#include <ept/debtags/maint/sourcedir.h>
-
 #include <tagcoll/input/memory.h>
-
+#include <tagcoll/input/stdio.h>
+#include <wibble/sys/fs.h>
 #include <cstring>
 #include <cstdio>
+#include <cstdlib>
 #include <sstream>
-
 #include <sys/types.h>
 #include <unistd.h>
 
 using namespace std;
 using namespace tagcoll;
+using namespace wibble;
 
 namespace ept {
 namespace debtags {
@@ -95,23 +94,30 @@ std::set<std::string> FacetData::tags() const
 }
 
 Vocabulary::Vocabulary(bool empty)
+    : m_timestamp(0)
 {
-	if (!empty)
-	{
-		SourceDir mainSource(Path::debtagsSourceDir());
-		SourceDir userSource(Path::debtagsUserSourceDir());
-
-		mainSource.readVocabularies(*this);
-		userSource.readVocabularies(*this);
-
-		time_t ts_main_src = mainSource.vocTimestamp();
-		time_t ts_user_src = userSource.vocTimestamp();
-		m_timestamp = ts_main_src > ts_user_src ? ts_main_src : ts_user_src;
-	}
+    if (empty) return;
+    load(pathname());
 }
 
 Vocabulary::~Vocabulary()
 {
+}
+
+string Vocabulary::pathname()
+{
+    const char* res = getenv("DEBTAGS_VOCABULARY");
+    if (!res) res = "/var/lib/debtags/vocabulary";
+    return res;
+}
+
+void Vocabulary::load(const std::string& pathname)
+{
+    if (!sys::fs::exists(pathname)) return;
+    // Read uncompressed data
+    tagcoll::input::Stdio in(pathname);
+    read(in);
+    m_timestamp = sys::fs::timestamp(pathname, 0);
 }
 
 voc::TagData& voc::FacetData::obtainTag(const std::string& name)
@@ -247,23 +253,12 @@ void Vocabulary::read(tagcoll::input::Input& input)
 
 void Vocabulary::write()
 {
-	SourceDir mainSource(Path::debtagsSourceDir());
-	SourceDir userSource(Path::debtagsUserSourceDir());
+    string vocfname = pathname();
 
-	// Do we have a user source?
-	time_t ts_user_src = userSource.vocTimestamp();
-
-	// Find out what vocabulary we should write
-	string vocfname;
-	if (ts_user_src > 0)
-		vocfname = Path::userVocabulary();
-	else
-                vocfname = Path::vocabulary();
-
-	// Write out, with appropriate umask
-	mode_t prev_umask = umask(022);
-	write(vocfname);
-	umask(prev_umask);
+    // Write out, with appropriate umask
+    mode_t prev_umask = umask(022);
+    write(vocfname);
+    umask(prev_umask);
 }
 
 void Vocabulary::write(const std::string& fname)

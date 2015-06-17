@@ -226,6 +226,9 @@ public:
 	FacetSet facets(const FacetMatcher& filter) const throw () { return getFiltered(filter); }
 #endif
 
+    /// Load vocabulary data from the given file
+    void load(const std::string& pathname);
+
 	/**
 	 * Parse and import the vocabulary from `input', merging the data with the
 	 * previously imported ones
@@ -246,6 +249,14 @@ public:
 	 * Write the vocabulary data to the given output stream
 	 */
 	void write(FILE* out);
+
+    /**
+     * Return the default pathname for the vocabulary.
+     *
+     * This returns /var/lib/debtags/vocabulary, unless it has been overridden
+     * by setting $DEBTAGS_VOCABULARY
+     */
+    static std::string pathname();
 };
 
 }
