@@ -19,7 +19,6 @@
  */
 
 #include <wibble/test.h>
-#include <ept/debtags/maint/path.h>
 #include <tagcoll/expression.h>
 #include <ept/debtags/vocabulary.h>
 

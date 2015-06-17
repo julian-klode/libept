@@ -24,8 +24,6 @@
  */
 
 #include <ept/debtags/debtags.h>
-#include <ept/debtags/maint/path.h>
-#include <ept/debtags/maint/sourcedir.h>
 
 #include <tagcoll/patch.h>
 #include <tagcoll/coll/simple.h>
@@ -52,43 +50,32 @@ namespace ept {
 namespace debtags {
 
 Debtags::Debtags(bool editable)
+    : m_timestamp(0)
 {
-	// Read and merge tag data
-	SourceDir mainSource(Path::debtagsSourceDir());
-	SourceDir userSource(Path::debtagsUserSourceDir());
+    string src = pathname();
+    if (!sys::fs::exists(src))
+        return;
 
-	mainSource.readTags(inserter(*this));
-	userSource.readTags(inserter(*this));
+    // Read uncompressed data
+    tagcoll::input::Stdio in(src);
 
-	time_t ts_main_src = mainSource.tagTimestamp();
-        time_t ts_user_src = userSource.tagTimestamp();
-        m_timestamp = ts_main_src > ts_user_src ? ts_main_src : ts_user_src;
+    // Read the collection
+    tagcoll::textformat::parse(in, inserter(*this));
 
-	// Initialize the patch collection layer
-	rcdir = Path::debtagsUserSourceDir();
+    // Read the timestamp
+    m_timestamp = sys::fs::timestamp(src, 0);
+}
 
-	string patchFile = str::joinpath(rcdir, "patch");
-	if (Path::access(patchFile, F_OK) == 0)
-	{
-		input::Stdio in(patchFile);
-		PatchList<string, string> patch;
-		textformat::parsePatch(in, inserter(patch));
-		applyChange(patch);
-	}
+string Debtags::pathname()
+{
+    const char* res = getenv("DEBTAGS_TAGS");
+    if (!res) res = "/var/lib/debtags/package-tags";
+    return res;
 }
 
 tagcoll::PatchList<std::string, std::string> Debtags::changes() const
 {
-	// Read original tag data
-	SourceDir mainSource(Path::debtagsSourceDir());
-	SourceDir userSource(Path::debtagsUserSourceDir());
-	coll::Simple<string, string> orig;
-	mainSource.readTags(inserter(orig));
-	userSource.readTags(inserter(orig));
-
-	tagcoll::PatchList<std::string, std::string> res;
-	res.addPatch(orig, *this);
-	return res;
+    return tagcoll::PatchList<std::string, std::string>();
 }
 
 
@@ -202,7 +189,6 @@ void Debtags::sendPatch(const PatchList<std::string, std::string>& patch)
 }
 }
 
-#include <ept/debtags/maint/sourcedir.tcc>
 #include <tagcoll/patch.tcc>
 #include <tagcoll/coll/simple.tcc>
 #include <tagcoll/coll/fast.tcc>

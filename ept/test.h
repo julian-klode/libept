@@ -1,6 +1,5 @@
 //#include <ept/core/apt.h>
 #include <ept/config.h>
-#include <ept/debtags/maint/path.h>
 
 #include <wibble/test.h>
 
@@ -34,17 +33,7 @@ struct AptTestEnvironment {
 };
 
 struct DebtagsTestEnvironment : AptTestEnvironment {
-    ept::debtags::Path::OverrideDebtagsSourceDir odsd;
-    ept::debtags::Path::OverrideDebtagsIndexDir odid;
-    ept::debtags::Path::OverrideDebtagsUserSourceDir odusd;
-    ept::debtags::Path::OverrideDebtagsUserIndexDir oduid;
-
-    DebtagsTestEnvironment()
-        : odsd( TEST_ENV_DIR "debtags/"),
-          odid( TEST_ENV_DIR "debtags/"),
-          odusd( TEST_ENV_DIR "debtags/"),
-          oduid( TEST_ENV_DIR "debtags/")
-    {}
+    DebtagsTestEnvironment() {}
 };
 
 struct EnvOverride

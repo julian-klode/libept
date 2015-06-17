@@ -45,13 +45,17 @@ using namespace ept;
 using namespace ept::debtags;
 using namespace wibble::operators;
 
+#define testfile TEST_ENV_DIR "debtags/package-tags"
+
 struct TestDebtags : DebtagsTestEnvironment
 {
-	Debtags debtags;
-
     TestDebtags() {}
 
-	Test _1() {
+    Test _1()
+    {
+        EnvOverride eo("DEBTAGS_TAGS", testfile);
+        Debtags debtags;
+
 		for (Debtags::const_iterator i = debtags.begin(); i != debtags.end(); ++i)
 		{
 			*i;
@@ -62,16 +66,18 @@ struct TestDebtags : DebtagsTestEnvironment
 		debtags.outputSystem(stream::countingSink(items, tags));
 		
 		int pitems = 0, ptags = 0;
-	debtags.outputPatched(stream::countingSink(pitems, ptags));
+        debtags.outputPatched(stream::countingSink(pitems, ptags));
 
-	assert(items > 10);
-	assert(tags > 10);
-	assert(items <= pitems);
-	assert(tags <= ptags);
-}
+        assert(items > 10);
+        assert(tags > 10);
+        assert(items <= pitems);
+        assert(tags <= ptags);
+    }
 
-	Test _2()
-{
+    Test _2()
+    {
+        EnvOverride eo("DEBTAGS_TAGS", testfile);
+        Debtags debtags;
 	string p("debtags");
 	std::set<std::string> tags = debtags.getTagsOfItem(p);
 	assert( !tags.empty() );
@@ -96,9 +102,11 @@ struct TestDebtags : DebtagsTestEnvironment
 	assert( tags.find("works-with::software:package") != tags.end() );
 }
 
-	Test _3()
-{
-	using namespace std;
+    Test _3()
+    {
+        using namespace std;
+        EnvOverride eo("DEBTAGS_TAGS", testfile);
+        Debtags debtags;
 
 	/* Get the 'debtags' package */
 	string p("debtags");
@@ -180,71 +188,11 @@ struct TestDebtags : DebtagsTestEnvironment
     //c.debtags().getTags(""); // XXX HACK AWW!
 }
 
-	Test _4()
-{
-	std::string patchfile = Path::debtagsUserSourceDir() + "patch";
-	unlink(patchfile.c_str());
-
-	string p("debtags");
-
-    /* Get its tags */
-	std::set<std::string> tags = debtags.getTagsOfItem(p);
-    assert(!tags.empty());
-
-	// Ensure that it's not tagged with gameplaying
-    std::string t = "use::gameplaying";
-    assert(tags.find(t) == tags.end());
-
-	// Add the gameplaying tag
-	PatchList<string, string> change;
-	change.addPatch(Patch<string, string>(p, wibble::singleton(t), wibble::Empty<string>()));
-	debtags.applyChange(change);
-
-	// See that the patch is non empty
-	PatchList<string, string> tmp = debtags.changes();
-	assert(tmp.size() > 0);
-	assert_eq(tmp.size(), 1u);
-
-	// Ensure that the tag has been added
-	tags = debtags.getTagsOfItem(p);
-    assert(!tags.empty());
-
-	t = "use::gameplaying";
-    assert(tags.find(t) != tags.end());
-
-	// Save the patch
-	debtags.savePatch();
-
-	// Check that the saved patch is correct
-	FILE* in = fopen(patchfile.c_str(), "r");
-	string writtenPatch;
-	int c;
-	while ((c = getc(in)) != EOF)
-		writtenPatch += c;
-	fclose(in);
-
-	assert_eq(writtenPatch, string("debtags: +use::gameplaying\n"));
-
-	unlink(patchfile.c_str());
-
-	// Reapply the patch and see that it doesn't disrept things
-	debtags.applyChange(change);
-
-	// The patch should not have changed
-	tmp = debtags.changes();
-	assert_eq(tmp.size(), 1u);
-	assert_eq(tmp.begin()->first, p);
-	assert_eq(tmp.begin()->second.item, p);
-}
-
-// If there is no data, Debtags should work as an empty collection
-	Test _5()
-{
-	Path::OverrideDebtagsSourceDir odsd("./empty");
-	Path::OverrideDebtagsIndexDir odid("./empty");
-	Path::OverrideDebtagsUserSourceDir odusd("./empty");
-	Path::OverrideDebtagsUserIndexDir oduid("./empty");
-	Debtags empty;
+    // If there is no data, Debtags should work as an empty collection
+    Test _4()
+    {
+        EnvOverride eo("DEBTAGS_TAGS", "./empty/notags");
+        Debtags empty;
 
 	assert(empty.begin() == empty.end());
 	assert_eq(empty.timestamp(), 0);

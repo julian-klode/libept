@@ -27,13 +27,11 @@
 #define EPT_DEBTAGS_DEBTAGS_TCC
 
 #include <ept/debtags/debtags.h>
-#include <ept/debtags/maint/path.h>
-#include <ept/debtags/maint/sourcedir.h>
-
 #include <tagcoll/coll/simple.h>
 #include <tagcoll/input/stdio.h>
 #include <tagcoll/stream/patcher.h>
 #include <tagcoll/TextFormat.h>
+#include <wibble/sys/fs.h>
 
 namespace ept {
 namespace debtags {
@@ -41,13 +39,15 @@ namespace debtags {
 template<typename OUT>
 void Debtags::outputSystem(const OUT& cons)
 {
-	// Read and merge tag data
-	SourceDir mainSource(Path::debtagsSourceDir());
-	SourceDir userSource(Path::debtagsUserSourceDir());
-	tagcoll::coll::Simple<string, string> merged;
-	mainSource.readTags(inserter(merged));
-	userSource.readTags(inserter(merged));
-	merged.output(cons);
+    string src = pathname();
+    if (!wibble::sys::fs::exists(src))
+        return;
+
+    // Read uncompressed data
+    tagcoll::input::Stdio in(src);
+
+    // Read the collection
+    tagcoll::textformat::parse(in, cons);
 }
 
 
@@ -91,10 +91,10 @@ void Debtags::outputPatched(const std::string& filename, const OUT& out)
 }
 }
 
-#include <ept/debtags/maint/sourcedir.tcc>
 #include <tagcoll/coll/simple.tcc>
 #include <tagcoll/coll/fast.tcc>
 #include <tagcoll/patch.tcc>
+#include <tagcoll/TextFormat.tcc>
 
 #endif
 

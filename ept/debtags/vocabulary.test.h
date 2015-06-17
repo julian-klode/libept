@@ -20,7 +20,6 @@
 
 #include <wibble/test.h>
 #include <ept/debtags/vocabulary.h>
-#include <ept/debtags/maint/path.h>
 #include <tagcoll/utils/set.h>
 #include <tagcoll/input/stdio.h>
 #include "ept/test.h"

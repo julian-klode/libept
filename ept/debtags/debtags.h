@@ -174,6 +174,14 @@ public:
 	 */
 	template<typename OUT>
 	void outputPatched(const std::string& filename, const OUT& out);
+
+    /**
+     * Return the default pathname for the debtags tags.
+     *
+     * This returns /var/lib/debtags/package-tags, unless it has been
+     * overridden by setting $DEBTAGS_TAGS
+     */
+    static std::string pathname();
 };
 
 
