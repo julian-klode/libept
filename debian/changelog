@@ -5,6 +5,7 @@ libept (1.0.13) UNRELEASED; urgency=medium
      - tag and vocabulary data are loaded only from /var/lib/debtags/
      - local patches are not supported anymore
      - tag and vocabulary merging are not supported anymore
+     - removed support for patched collections
 
  -- Enrico Zini <enrico@debian.org>  Thu, 18 Jun 2015 01:26:01 +0200
 
