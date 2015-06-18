@@ -21,5 +21,5 @@ override_dh_auto_install:
 
 debsrc:
 	debian/check_versions
-	git-buildpackage --git-pristine-tar -S -us -uc
+	gbp buildpackage --git-pristine-tar -S -us -uc
 
