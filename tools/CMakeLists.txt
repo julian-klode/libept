@@ -7,5 +7,3 @@ add_executable( pkglist pkglist.cpp )
 
 set( bindir ${CMAKE_CURRENT_BINARY_DIR} )
 set( srcdir ${CMAKE_CURRENT_SOURCE_DIR} )
-
-install( PROGRAMS ept-cache DESTINATION bin )

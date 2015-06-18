@@ -53,14 +53,3 @@ Description: High-level library for managing Debian package information
   * The Xapian index built by apt-xapian-index
  .
  This is the shared library.
-
-Package: ept-cache
-Architecture: all
-Section: misc
-Pre-Depends: ${misc:Pre-Depends}
-Depends: ${shlibs:Depends}, ${misc:Depends}, apt-xapian-index (>= 0.30)
-Recommends: debtags
-Description: Obsolete commandline tool to search the package archive
- ept-cache has been superseded by axi-cache, provided by apt-xapian-index.
- .
- This package provides a dummy ept-cache script that just call axi-cache.
