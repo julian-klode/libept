@@ -55,23 +55,12 @@ struct TestDebtags : DebtagsTestEnvironment
     {
         EnvOverride eo("DEBTAGS_TAGS", testfile);
         Debtags debtags;
-
 		for (Debtags::const_iterator i = debtags.begin(); i != debtags.end(); ++i)
 		{
 			*i;
 			i->first;
 			i->second;
 		}
-		int items = 0, tags = 0;
-		debtags.outputSystem(stream::countingSink(items, tags));
-		
-		int pitems = 0, ptags = 0;
-        debtags.outputPatched(stream::countingSink(pitems, ptags));
-
-        assert(items > 10);
-        assert(tags > 10);
-        assert(items <= pitems);
-        assert(tags <= ptags);
     }
 
     Test _2()
@@ -209,20 +198,10 @@ struct TestDebtags : DebtagsTestEnvironment
 
 	res = empty.getAllTags();
 	assert(res.empty());
-
-	tagcoll::coll::Simple<string, std::string> coll;
-	empty.outputSystem(tagcoll::coll::inserter(coll));
-	assert_eq(coll.itemCount(), 0u);
-
-	coll.clear();
-
-	empty.outputPatched(tagcoll::coll::inserter(coll));
-	assert_eq(coll.itemCount(), 0u);
 }
 
 };
 
-#include <ept/debtags/debtags.tcc>
 #include <tagcoll/coll/simple.tcc>
 
 #endif

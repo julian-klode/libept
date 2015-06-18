@@ -141,40 +141,6 @@ public:
 	 */
 	void sendPatch(const tagcoll::PatchList<std::string, std::string>& patch);
 
-	/**
-	 * Output the current Debian tags database to a consumer of <std::string, std::string>
-	 *
-	 * \note The collection is sent to 'cons' without merging repeated items
-	 */
-	template<typename OUT>
-	void outputSystem(const OUT& cons);
-
-	/**
-	 * Output the given tag file to a consumer of <std::string, std::string>
-	 *
-	 * \note The collection is sent to 'cons' without merging repeated items
-	 */
-	template<typename OUT>
-	void outputSystem(const std::string& filename, const OUT& out);
-
-	/**
-	 * Output the current Debian tags database, patched with local patch,
-	 * to a Consumer of <std::string, std::string>
-	 *
-	 * \note The collection is sent to 'cons' without merging repeated items
-	 */
-	template<typename OUT>
-	void outputPatched(const OUT& cons);
-
-	/**
-	 * Output the given tag file, patched with local patch,
-	 * to a Consumer of <std::string, std::string>
-	 *
-	 * \note The collection is sent to 'cons' without merging repeated items
-	 */
-	template<typename OUT>
-	void outputPatched(const std::string& filename, const OUT& out);
-
     /**
      * Return the default pathname for the debtags tags.
      *
