@@ -187,9 +187,6 @@ struct TestDebtags : DebtagsTestEnvironment
 	assert_eq(empty.timestamp(), 0);
 	assert(!empty.hasData());
 
-	tagcoll::PatchList<std::string, std::string> patches = empty.changes();
-	assert(patches.empty());
-
 	set<std::string> res = empty.getTagsOfItem("apt");
 	assert(res.empty());
 	// TODO: currently does not compile because of a bug in tagcoll

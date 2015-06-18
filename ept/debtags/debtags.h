@@ -83,63 +83,6 @@ public:
 
 	coll_type& tagdb() { return *this; }
 	const coll_type& tagdb() const { return *this; }
-	tagcoll::PatchList<std::string, std::string> changes() const;
-
-#if 0
-	/**
-	 * Get the changes that have been applied to this collection
-	 */
-	const Patches& changes() const { return m_changes; }
-
-	/**
-	 * Throw away all changes previously applied to this collection
-	 */
-	void resetChanges() { m_changes.clear(); }
-
-	/**
-	 * Set the changes list to a specific patch list
-	 */
-	void setChanges(const Patches& changes);
-
-	/**
-	 * Add a specific patch list to the changes list
-	 */
-	void addChanges(const Patches& changes);
-#endif
-
-#if 0
-	ItemSet getTaggedItems() const;
-#endif
-
-	/**
-	 * Check if the tag database has been created (i.e. if something
-	 * equivalend to debtags update has been run)
-	 */
-	//static bool hasTagDatabase();
-
-
-	/**
-	 * Save in the state storage directory a patch that can be used to turn
-	 * the system database into the collection given
-	 */
-	void savePatch();
-
-	/**
-	 * Save in the state storage directory a patch to turn the system database
-	 * into the collection given
-	 */
-	void savePatch(const tagcoll::PatchList<std::string, std::string>& patch);
-
-	/**
-	 * Send to the central archive a patch that can be used to turn
-	 * the system database into the collection given
-	 */
-	void sendPatch();
-
-	/**
-	 * Send the given patch to the central archive
-	 */
-	void sendPatch(const tagcoll::PatchList<std::string, std::string>& patch);
 
     /**
      * Return the default pathname for the debtags tags.
