@@ -19,7 +19,7 @@ Section: libdevel
 Architecture: any
 Recommends: pkg-config
 Depends:
-  libept1.4.12 (= ${binary:Version}),
+  libept1.4.13 (= ${binary:Version}),
   libwibble-dev (>= 1.1), libwibble-dev (<< 2.0),
   libtagcoll2-dev (>= 2.0.6), libtagcoll2-dev (<< 2.1),
   libapt-pkg-dev (>= 0.6.46.1), libxapian-dev (>= 1.0.5), ${misc:Depends}
