@@ -1,5 +1,10 @@
 libept (1.0.13) UNRELEASED; urgency=medium
 
+  [Raúl Sánchez Siles]
+   * Fix "missing link /usr/lib/libept.so.1.0.5.4.12" Link now depends on
+     architecture using dh-exec (Closes: #727694)
+
+  [Enrico Zini]
   * Added cmake_minimum_required. Closes: #788770
   * Simplified debtags code
      - tag and vocabulary data are loaded only from /var/lib/debtags/
