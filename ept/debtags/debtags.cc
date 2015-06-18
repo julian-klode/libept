@@ -49,21 +49,31 @@ using namespace wibble;
 namespace ept {
 namespace debtags {
 
-Debtags::Debtags(bool editable)
+Debtags::Debtags()
     : m_timestamp(0)
 {
     string src = pathname();
     if (!sys::fs::exists(src))
         return;
+    load(src);
+}
 
+Debtags::Debtags(const std::string& pathname)
+    : m_timestamp(0)
+{
+    load(pathname);
+}
+
+void Debtags::load(const std::string& pathname)
+{
     // Read uncompressed data
-    tagcoll::input::Stdio in(src);
+    tagcoll::input::Stdio in(pathname);
 
     // Read the collection
     tagcoll::textformat::parse(in, inserter(*this));
 
     // Read the timestamp
-    m_timestamp = sys::fs::timestamp(src, 0);
+    m_timestamp = sys::fs::timestamp(pathname, 0);
 }
 
 string Debtags::pathname()

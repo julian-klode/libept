@@ -60,20 +60,17 @@ protected:
 	// Last modification timestamp of the index
 	time_t m_timestamp;
 
+    void load(const std::string& pathname);
+
 public:
 	typedef tagcoll::coll::Fast<std::string, std::string> coll_type;
 	typedef std::pair< std::string, std::set<std::string> > value_type;
 
-	/**
-	 * Create a new accessor for the on-disk Debtags database
-	 *
-	 * \param editable
-	 * Specifies if recording of modifications should be enabled.  If editable
-	 * is true, then the local state directory will be created when the object
-	 * is instantiated.
-	 */
-	Debtags(bool editable = false);
-	~Debtags() {}
+    /// Create a Debtags object, reading the system database
+    Debtags();
+    /// Create a Debtags object, reading the given database file
+    Debtags(const std::string& pathname);
+    ~Debtags() {}
 
 	/// Get the timestamp of when the index was last updated
 	time_t timestamp() const { return m_timestamp; }
