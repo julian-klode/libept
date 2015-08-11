@@ -1,3 +1,9 @@
+libept (1.0.14) unstable; urgency=medium
+
+  * New version that includes Matthias' NMU
+
+ -- Enrico Zini <enrico@debian.org>  Tue, 11 Aug 2015 19:50:06 +0200
+
 libept (1.0.13.1) experimental; urgency=medium
 
   * Non maintainer upload.
