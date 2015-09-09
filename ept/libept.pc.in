@@ -6,6 +6,6 @@ includedir=@includedir@
 Name: libept
 Description: Access various data sources about software packages
 Version: @EPT_VERSION@
-Requires: libtagcoll2 libwibble
+Requires: libwibble
 Cflags: -I${includedir}
 Libs: -L${libdir} -lept -lapt-pkg -lxapian -lz
