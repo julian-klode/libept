@@ -8,7 +8,6 @@ Build-Depends:
   cmake (>= 2.6), pkg-config, doxygen,
   libapt-pkg-dev (>= 1.0.10),
   libwibble-dev (>= 1.1-1+b1), libwibble-dev (<< 2.0),
-  libtagcoll2-dev (>= 2.0.14-1+b1), libtagcoll2-dev (<< 2.1),
   libxapian-dev (>= 1.2.21-1.2)
 Standards-Version: 3.9.6.0
 Vcs-Git: git://git.debian.org/git/debtags/libept.git
@@ -21,9 +20,8 @@ Recommends: pkg-config
 Depends:
   libept1.4.16 (= ${binary:Version}),
   libwibble-dev (>= 1.1-1+b1), libwibble-dev (<< 2.0),
-  libtagcoll2-dev (>= 2.0.14-1+b1), libtagcoll2-dev (<< 2.1),
   libapt-pkg-dev (>= 1.0.10), libxapian-dev (>= 1.2.21-1.2), ${misc:Depends}
-Built-Using: ${libwibble:Source}, ${tagcoll2:Source}
+Built-Using: ${libwibble:Source}
 Description: High-level library for managing Debian package information
  The library defines a very minimal framework in which many sources of data
  about Debian packages can be implemented and queried together.
@@ -42,7 +40,7 @@ Section: libs
 Architecture: any
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Built-Using: ${libwibble:Source}, ${tagcoll2:Source}
+Built-Using: ${libwibble:Source}
 Description: High-level library for managing Debian package information
  The library defines a very minimal framework in which many sources of data
  about Debian packages can be implemented and queried together.
