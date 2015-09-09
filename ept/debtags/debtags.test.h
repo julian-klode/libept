@@ -26,11 +26,6 @@
 
 
 #include <ept/debtags/debtags.h>
-
-#include <tagcoll/coll/simple.h>
-#include <tagcoll/stream/sink.h>
-#include <tagcoll/patch.h>
-
 #include <wibble/operators.h>
 
 #include <ept/test.h>
@@ -199,8 +194,4 @@ struct TestDebtags : DebtagsTestEnvironment
 
 };
 
-#include <tagcoll/coll/simple.tcc>
-
 #endif
-
-// vim:set ts=4 sw=4:

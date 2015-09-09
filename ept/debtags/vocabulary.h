@@ -28,12 +28,7 @@
 #include <vector>
 #include <set>
 #include <map>
-
-namespace tagcoll {
-namespace input {
-struct Input;
-}
-}
+#include <cstdio>
 
 namespace ept {
 namespace debtags {
@@ -229,11 +224,11 @@ public:
     /// Load vocabulary data from the given file
     void load(const std::string& pathname);
 
-	/**
-	 * Parse and import the vocabulary from `input', merging the data with the
-	 * previously imported ones
-	 */
-	void read(tagcoll::input::Input& input);
+    /**
+     * Parse and import the vocabulary from `input', merging the data with the
+     * previously imported ones
+     */
+    void read(FILE* input, const std::string& pathname);
 
 	/**
 	 * Atomically update the system vocabulary

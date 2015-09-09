@@ -1,28 +1,25 @@
 project( ept )
 include( ${WIBBLE_TEST_CMAKE} )
 
-file( GLOB src *.cpp debtags/*.cc debtags/maint/*.cc
-  popcon/*.cc popcon/maint/*.cc apt/*.cc axi/*.cc )
+file( GLOB src *.cpp debtags/*.cc debtags/maint/*.cc debtags/coll/*.cc
+  apt/*.cc axi/*.cc utils/*.cc )
 
 file( GLOB h_top *.h )
 file( GLOB h_apt apt/*.h )
 file( GLOB h_debtags debtags/*.h debtags/*.tcc )
 file( GLOB h_debtags_maint debtags/maint/*.h debtags/maint/*.tcc )
-file( GLOB h_popcon popcon/*.h )
-file( GLOB h_popcon_maint popcon/maint/*.h )
 file( GLOB h_axi axi/*.h )
+file( GLOB h_utils utils/*.h )
 
 file( GLOB debtagstesth debtags/*.test.h debtags/maint/*.test.h )
-file( GLOB popcontesth popcon/*.test.h )
 file( GLOB apttesth apt/*.test.h )
 file( GLOB axitesth axi/*.test.h )
-set( testh ${debtagstesth} ${popcontesth}
-           ${apttesth} ${axitesth} )
+set( testh ${debtagstesth} ${apttesth} ${axitesth} )
 
 include_directories( ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} 
                      ${TAGCOLL_INCLUDE_DIRS} ${WIBBLE_INCLUDE_DIRS} )
 link_libraries( ${WIBBLE_LIBRARIES} ${TAGCOLL_LIBRARIES} apt-pkg xapian -lpthread )
-add_definitions( -fexceptions -fPIC -fvisibility=default )
+add_definitions( --std=c++11 -fexceptions -fPIC -fvisibility=default )
 
 add_library( ept SHARED ${src} )
 add_library( ept-static STATIC ${src} )
@@ -69,10 +66,6 @@ add_custom_command(
   COMMAND mkdir -p test-env/debtags/empty
   COMMAND mkdir -p test-env/debtags/user
   COMMAND mkdir -p test-env/xapian/
-  COMMAND mkdir -p test-env/popcon/
-  COMMAND mkdir -p test-env/popcon/empty
-  COMMAND cp -a ${datadir}/popcon/all-popcon-results.txt.gz test-env/popcon/
-  COMMAND cp -a ${datadir}/popcon/popularity-contest test-env/popcon/
   COMMAND touch data-stamp )
 
 install( TARGETS ept ept-static
@@ -84,6 +77,5 @@ install( FILES ${h_top} DESTINATION include/ept )
 install( FILES ${h_apt} DESTINATION include/ept/apt )
 install( FILES ${h_debtags} DESTINATION include/ept/debtags )
 install( FILES ${h_debtags_maint} DESTINATION include/ept/debtags/maint )
-install( FILES ${h_popcon} DESTINATION include/ept/popcon )
-install( FILES ${h_popcon_maint} DESTINATION include/ept/popcon/maint )
 install( FILES ${h_axi} DESTINATION include/ept/axi )
+install( FILES ${h_utils} DESTINATION include/ept/utils )

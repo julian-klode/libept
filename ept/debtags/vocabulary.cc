@@ -20,9 +20,10 @@
 
 #include <ept/debtags/vocabulary.h>
 #include <ept/debtags/maint/debdbparser.h>
-#include <tagcoll/input/memory.h>
-#include <tagcoll/input/stdio.h>
+#include <wibble/exception.h>
 #include <wibble/sys/fs.h>
+#include <system_error>
+#include <cassert>
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
@@ -31,7 +32,6 @@
 #include <unistd.h>
 
 using namespace std;
-using namespace tagcoll;
 using namespace wibble;
 
 namespace ept {
@@ -115,8 +115,17 @@ void Vocabulary::load(const std::string& pathname)
 {
     if (!sys::fs::exists(pathname)) return;
     // Read uncompressed data
-    tagcoll::input::Stdio in(pathname);
-    read(in);
+    FILE* in = fopen(pathname.c_str(), "rt");
+    if (!in)
+        throw std::system_error(errno, std::system_category(), "cannot open " + pathname);
+
+    try {
+        read(in, pathname);
+    } catch (...) {
+        fclose(in);
+        throw;
+    }
+    fclose(in);
     m_timestamp = sys::fs::timestamp(pathname, 0);
 }
 
@@ -126,7 +135,7 @@ voc::TagData& voc::FacetData::obtainTag(const std::string& name)
 	if (i == m_tags.end())
 	{
 		// Create the tag if it's missing
-		pair<std::map<std::string, TagData>::iterator, bool> res = m_tags.insert(make_pair<std::string, TagData>(name, TagData()));
+		pair<std::map<std::string, TagData>::iterator, bool> res = m_tags.insert(make_pair(name, TagData()));
 		i = res.first;
 		i->second.name = name;
 	}
@@ -139,7 +148,7 @@ voc::FacetData& Vocabulary::obtainFacet(const std::string& name)
 	if (i == m_facets.end())
 	{
 		// Create the facet if it's missing
-		pair<std::map<std::string, voc::FacetData>::iterator, bool> res = m_facets.insert(make_pair<std::string, voc::FacetData>(name, voc::FacetData()));
+		pair<std::map<std::string, voc::FacetData>::iterator, bool> res = m_facets.insert(make_pair(name, voc::FacetData()));
 		i = res.first;
 		i->second.name = name;
 	}
@@ -208,9 +217,9 @@ std::set<std::string> Vocabulary::tags(const std::string& facet) const
 	return f->tags();
 }
 
-void Vocabulary::read(tagcoll::input::Input& input)
+void Vocabulary::read(FILE* input, const std::string& pathname)
 {
-	DebDBParser parser(input);
+	DebDBParser parser(input, pathname);
 	DebDBParser::Record record;
 
 	while (parser.nextRecord(record))
@@ -243,12 +252,11 @@ void Vocabulary::read(tagcoll::input::Input& input)
 				if (i->first != "Tag")
 					tag[i->first] = i->second;
 		}
-		else
-		{
-			fprintf(stderr, "%s:%d: Skipping record without Tag or Facet field\n",
-					input.fileName().c_str(), input.lineNumber());
-		}
-	}
+        else
+        {
+            fprintf(stderr, "%s: Skipping record without Tag or Facet field\n", parser.fileName().c_str());
+        }
+    }
 }
 
 void Vocabulary::write()

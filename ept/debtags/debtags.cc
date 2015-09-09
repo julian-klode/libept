@@ -25,14 +25,14 @@
 
 #include <ept/debtags/debtags.h>
 
-#include <tagcoll/patch.h>
-#include <tagcoll/coll/simple.h>
-#include <tagcoll/input/stdio.h>
-#include <tagcoll/TextFormat.h>
+//#include <tagcoll/coll/simple.h>
+//#include <tagcoll/input/stdio.h>
+#include "coll/TextFormat.h"
 
 #include <wibble/sys/fs.h>
 #include <wibble/string.h>
 
+#include <system_error>
 #include <iostream>
 #include <sstream>
 
@@ -67,10 +67,18 @@ Debtags::Debtags(const std::string& pathname)
 void Debtags::load(const std::string& pathname)
 {
     // Read uncompressed data
-    tagcoll::input::Stdio in(pathname);
+    FILE* in = fopen(pathname.c_str(), "rt");
+    if (!in)
+        throw std::system_error(errno, std::system_category(), "cannot open " + pathname);
 
     // Read the collection
-    tagcoll::textformat::parse(in, inserter(*this));
+    try {
+        tagcoll::textformat::parse(in, pathname, inserter(*this));
+    } catch (...) {
+        fclose(in);
+        throw;
+    }
+    fclose(in);
 
     // Read the timestamp
     m_timestamp = sys::fs::timestamp(pathname, 0);
@@ -86,9 +94,8 @@ string Debtags::pathname()
 }
 }
 
-#include <tagcoll/coll/simple.tcc>
-#include <tagcoll/coll/fast.tcc>
-#include <tagcoll/TextFormat.tcc>
+#include "coll/fast.tcc"
+#include "coll/TextFormat.tcc"
 
 // Explicit template instantiations for our stuff
 template class tagcoll::coll::Fast<std::string, std::string>;

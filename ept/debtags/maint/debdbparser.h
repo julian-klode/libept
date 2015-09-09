@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2003--2007  Enrico Zini <enrico@debian.org>
+ * Copyright (C) 2003--2015  Enrico Zini <enrico@debian.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,16 +23,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <tagcoll/input/base.h>
-
-// TODO: is there a way to forward-declare this?
 #include <map>
-
-namespace tagcoll {
-namespace input {
-class Input;
-}
-}
 
 namespace ept {
 namespace debtags {
@@ -52,7 +43,8 @@ public:
 class DebDBParser
 {
 protected:
-	tagcoll::input::Input& in;
+    FILE* in;
+    std::string pathname;
 	bool isBOL;
 	bool isEOF;
 
@@ -73,10 +65,9 @@ protected:
 public:
 	typedef std::map<std::string, std::string> Record;
 
-	DebDBParser(tagcoll::input::Input& input);
+    DebDBParser(FILE* input, const std::string& pathname);
 
-	const std::string& fileName() const throw () { return in.fileName(); }
-	int lineNumber() const throw () { return in.lineNumber(); }
+    const std::string& fileName() const throw () { return pathname; }
 
 	// Read a record and positions itself at the start of the next one
 	// Returns false when there are no more records available

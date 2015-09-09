@@ -26,8 +26,8 @@
 #ifndef EPT_DEBTAGS_DEBTAGS_H
 #define EPT_DEBTAGS_DEBTAGS_H
 
-#include <tagcoll/coll/base.h>
-#include <tagcoll/coll/fast.h>
+#include <ept/debtags/coll/base.h>
+#include <ept/debtags/coll/fast.h>
 #include <string>
 
 namespace ept {

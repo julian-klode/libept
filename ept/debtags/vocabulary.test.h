@@ -20,8 +20,7 @@
 
 #include <wibble/test.h>
 #include <ept/debtags/vocabulary.h>
-#include <tagcoll/utils/set.h>
-#include <tagcoll/input/stdio.h>
+#include <ept/debtags/coll/set.h>
 #include "ept/test.h"
 
 using namespace std;
@@ -52,7 +51,7 @@ struct TestVocabulary : DebtagsTestEnvironment
     EnvOverride eo("DEBTAGS_VOCABULARY", testfile);
     Vocabulary tags;
     assert( tags.hasTag( "works-with::people" ) );
-    assert( !tags.hasTag( "works-with::midgets" ) );
+    assert( !tags.hasTag( "works-with::foobar" ) );
 }
 
         Test _4()
@@ -60,15 +59,15 @@ struct TestVocabulary : DebtagsTestEnvironment
     EnvOverride eo("DEBTAGS_VOCABULARY", testfile);
     Vocabulary tags;
     const voc::TagData *people = tags.tagData( "works-with::people" ),
-                       *midgets = tags.tagData( "works-with::midgets" ),
+                       *foobar = tags.tagData( "works-with::foobar" ),
                        *blahg = tags.tagData( "works-with::blahg" ),
                        *text = tags.tagData( "works-with::text" ),
                        *people2 = tags.tagData( "works-with::people" );
-    assert( people != midgets );
+    assert( people != foobar );
     assert( people != text );
     assert( people != blahg );
-    assert( midgets == blahg );
-    assert( midgets == midgets );
+    assert( foobar == blahg );
+    assert( foobar == foobar );
     assert( people == people2 );
     assert( people == people );
 }
@@ -78,7 +77,7 @@ struct TestVocabulary : DebtagsTestEnvironment
     EnvOverride eo("DEBTAGS_VOCABULARY", testfile);
     Vocabulary tags;
     std::string a = "works-with::people",
-                b = "works-with::midgets";
+                b = "works-with::foobar";
     std::set<std::string> s = tags.tags(),
                           f = tags.tags( "works-with" ),
                           n = tags.tags( "nonsense" );
