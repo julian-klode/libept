@@ -163,28 +163,6 @@ int parseElement(FILE* in, const std::string& pathname, string& item)
     return EOF;
 }
 
-static void printTagset(const std::set<string>& ts, FILE* out)
-{
-    for (std::set<string>::const_iterator i = ts.begin();
-            i != ts.end(); i++)
-        if (i == ts.begin())
-        {
-            if (fprintf(out, "%s", i->c_str()) < 0)
-                throw wibble::exception::System("writing tagset");
-        }
-        else
-        {
-            if (fprintf(out, ", %s", i->c_str()) < 0)
-                throw wibble::exception::System("writing tagset");
-        }
-}
-
-inline static void outString(const std::string& str, FILE* out, const char* what)
-{
-    if (fwrite(str.data(), str.size(), 1, out) != 1)
-        throw wibble::exception::System(string("writing ") + what);
-}
-
 
 // item1, item2, item3: tag1, tag2, tag3
 

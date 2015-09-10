@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2005,2006  Enrico Zini <enrico@debian.org>
+ * Copyright (C) 2005--2015  Enrico Zini <enrico@debian.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,14 +40,6 @@ class Fast
 protected:
     std::map<std::string, std::set<std::string>> items;
     std::map<std::string, std::set<std::string>> tags;
-
-#if 0
-    virtual void consumeItem(const std::string& item, const std::set<std::string>& tags);
-    virtual void consumeItems(const std::set<std::string>& items, const std::set<std::string>& tags);
-
-    virtual std::set<std::string> getItemsHavingTag(const std::string& tag) const;
-    virtual std::set<std::string> getTagsOfItem(const std::string& item) const;
-#endif
 
 public:
     typedef std::map<std::string, std::set<std::string>>::const_iterator const_iterator;
@@ -93,10 +85,6 @@ public:
 
     unsigned int itemCount() const { return items.size(); }
     unsigned int tagCount() const { return tags.size(); }
-
-#if 0
-    void output(Consumer<std::string, std::string>& consumer) const;
-#endif
 
     // tag1 implies tag2 if the itemset of tag1 is a subset of the itemset of
     // tag2
