@@ -19,13 +19,20 @@
  */
 
 #include "TextFormat.h"
+#include "fast.h"
+#include <wibble/exception.h>
+#include <wibble/operators.h>
 #include <stdexcept>
 #include <system_error>
+#include <set>
 
 using namespace std;
 using namespace wibble;
+using namespace wibble::operators;
 
-namespace tagcoll {
+namespace ept {
+namespace debtags {
+namespace coll {
 namespace textformat {
 
 // Parse an element
@@ -156,7 +163,83 @@ int parseElement(FILE* in, const std::string& pathname, string& item)
     return EOF;
 }
 
-}
+static void printTagset(const std::set<string>& ts, FILE* out)
+{
+    for (std::set<string>::const_iterator i = ts.begin();
+            i != ts.end(); i++)
+        if (i == ts.begin())
+        {
+            if (fprintf(out, "%s", i->c_str()) < 0)
+                throw wibble::exception::System("writing tagset");
+        }
+        else
+        {
+            if (fprintf(out, ", %s", i->c_str()) < 0)
+                throw wibble::exception::System("writing tagset");
+        }
 }
 
-#include "TextFormat.tcc"
+inline static void outString(const std::string& str, FILE* out, const char* what)
+{
+    if (fwrite(str.data(), str.size(), 1, out) != 1)
+        throw wibble::exception::System(string("writing ") + what);
+}
+
+
+// item1, item2, item3: tag1, tag2, tag3
+
+//#define TRACE_PARSE
+void parse(FILE* in, const std::string& pathname, Fast& out)
+{
+    string item;
+
+    std::set<string> itemset;
+    std::set<string> tagset;
+    int sep;
+    enum {ITEMS, TAGS} state = ITEMS;
+    int line = 1;
+    do
+    {
+        sep = parseElement(in, pathname, item);
+        
+        if (item.size() != 0)
+        {
+            if (state == ITEMS)
+                itemset |= item;
+            else
+                tagset |= item;
+        }
+        
+        switch (sep)
+        {
+            case '\n':
+                line++;
+            case EOF:
+                if (!(itemset.empty() && tagset.empty()))
+                {
+                    if (itemset.empty())
+                        throw std::runtime_error("no elements before ':' separator");
+                    if (tagset.empty())
+                        out.insert(itemset, std::set<std::string>());
+                    else
+                        out.insert(itemset, tagset);
+                }
+                itemset.clear();
+                tagset.clear();
+                state = ITEMS;
+                break;
+            case ':':
+                if (state == TAGS)
+                    throw std::runtime_error("separator ':' appears twice");
+                state = TAGS;
+                break;
+            default:
+                break;
+        }
+    } while (sep != EOF);
+}
+
+}
+}
+}
+}

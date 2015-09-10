@@ -24,26 +24,18 @@
  */
 
 #include <ept/debtags/debtags.h>
-
-//#include <tagcoll/coll/simple.h>
-//#include <tagcoll/input/stdio.h>
 #include "coll/TextFormat.h"
-
 #include <wibble/sys/fs.h>
 #include <wibble/string.h>
-
 #include <system_error>
 #include <iostream>
 #include <sstream>
-
 #include <sys/wait.h>	// WIFEXITED WEXITSTATUS
 #include <sys/types.h>	// getpwuid, getuid
 #include <pwd.h>	// getpwuid
 #include <unistd.h>	// getuid
 
-
 using namespace std;
-using namespace tagcoll;
 using namespace wibble;
 
 namespace ept {
@@ -73,7 +65,7 @@ void Debtags::load(const std::string& pathname)
 
     // Read the collection
     try {
-        tagcoll::textformat::parse(in, pathname, inserter(*this));
+        coll::textformat::parse(in, pathname, *this);
     } catch (...) {
         fclose(in);
         throw;
@@ -93,11 +85,3 @@ string Debtags::pathname()
 
 }
 }
-
-#include "coll/fast.tcc"
-#include "coll/TextFormat.tcc"
-
-// Explicit template instantiations for our stuff
-template class tagcoll::coll::Fast<std::string, std::string>;
-
-// vim:set ts=4 sw=4:

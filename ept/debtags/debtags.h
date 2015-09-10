@@ -26,15 +26,8 @@
 #ifndef EPT_DEBTAGS_DEBTAGS_H
 #define EPT_DEBTAGS_DEBTAGS_H
 
-#include <ept/debtags/coll/base.h>
 #include <ept/debtags/coll/fast.h>
 #include <string>
-
-namespace ept {
-namespace debtags {
-class Debtags;
-}
-}
 
 namespace ept {
 namespace debtags {
@@ -51,7 +44,7 @@ namespace debtags {
  * It is possible to get a reference to the Vocabulary object using the
  * vocabulary() method.
  */
-class Debtags : public tagcoll::coll::Fast<std::string, std::string>
+class Debtags : public coll::Fast
 {
 protected:
 	// User rc directory to store patches
@@ -63,8 +56,8 @@ protected:
     void load(const std::string& pathname);
 
 public:
-	typedef tagcoll::coll::Fast<std::string, std::string> coll_type;
-	typedef std::pair< std::string, std::set<std::string> > value_type;
+    typedef ept::debtags::coll::Fast coll_type;
+    typedef std::pair< std::string, std::set<std::string> > value_type;
 
     /// Create a Debtags object, reading the system database
     Debtags();
@@ -89,7 +82,6 @@ public:
      */
     static std::string pathname();
 };
-
 
 }
 }

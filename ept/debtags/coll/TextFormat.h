@@ -26,53 +26,16 @@
 #include <wibble/mixin.h>
 #include <wibble/empty.h>
 #include <wibble/singleton.h>
-//#include <tagcoll/input/base.h>
 #include <cstdio>
 
 //#define TRACE_PARSE
 
-namespace tagcoll
-{
+namespace ept {
+namespace debtags {
+namespace coll {
+struct Fast;
 
-namespace textformat
-{
-
-/**
- * TagcollConsumer that serializes its input to an output stream
- *
- * The format of the output is:
- *   lines of "comma+space"-separated items, followed by "colon+space",
- *   followed by the corresponding "comma+space"-separated tags.
- * Examples:
- *   ITEM:
- *   ITEM: TAG
- *   ITEM: TAG1, TAG2, TAG3
- *   ITEM1, ITEM2, ITEM3:
- *   ITEM1, ITEM2, ITEM3: TAG1, TAG2, TAG3
- */
-class StdioWriter : public wibble::mixin::OutputIterator<StdioWriter>
-{
-protected:
-    FILE* out;
-
-public:
-    StdioWriter(FILE* out) : out(out) {}
-
-    template<typename Items, typename Tags>
-    StdioWriter& operator=(const std::pair<Items, Tags>& data);
-};
-
-class OstreamWriter : public wibble::mixin::OutputIterator<OstreamWriter>
-{
-protected:
-    std::ostream& out;
-
-public:
-    OstreamWriter(std::ostream& out) : out(out) {}
-
-    template<typename Items, typename Tags>
-    OstreamWriter& operator=(const std::pair<Items, Tags>& data);
-};
+namespace textformat {
 
 /**
  * Parse an element from input
@@ -95,11 +58,11 @@ int parseElement(FILE* in, const std::string& pathname, std::string& item);
  * @param out
  *   An output iterator accepting a std::pair<string, string>
  */
-template<typename OUT>
-void parse(FILE* in, const std::string& pathname, OUT out);
+void parse(FILE* in, const std::string& pathname, Fast& out);
 
 }
 }
+}
+}
 
-// vim:set ts=4 sw=4:
 #endif

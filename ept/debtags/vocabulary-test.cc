@@ -4,7 +4,7 @@
 #include "ept/test.h"
 
 using namespace std;
-using namespace tagcoll::utils;
+using namespace ept::debtags::coll::utils;
 using namespace ept::debtags;
 using namespace ept::tests;
 

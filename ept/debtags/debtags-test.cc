@@ -3,7 +3,6 @@
 #include <wibble/operators.h>
 #include <cstdio>
 
-using namespace tagcoll;
 using namespace std;
 using namespace ept;
 using namespace ept::debtags;

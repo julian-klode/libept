@@ -26,7 +26,9 @@
 #include <wibble/operators.h>
 #include <set>
 
-namespace tagcoll {
+namespace ept {
+namespace debtags {
+namespace coll {
 namespace utils {
 
 template<typename T>
@@ -83,6 +85,7 @@ bool set_contains(const std::set<T>& set1, const T& item)
 
 }
 }
+}
+}
 
-// vim:set ts=4 sw=4:
 #endif

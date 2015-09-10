@@ -8,8 +8,8 @@ list(REMOVE_ITEM src ${tests})
 # Find headers
 file( GLOB h_top *.h )
 file( GLOB h_apt apt/*.h )
-file( GLOB h_debtags debtags/*.h debtags/*.tcc )
-file( GLOB h_debtags_maint debtags/maint/*.h debtags/maint/*.tcc )
+file( GLOB h_debtags debtags/*.h )
+file( GLOB h_debtags_maint debtags/maint/*.h )
 file( GLOB h_axi axi/*.h )
 file( GLOB h_utils utils/*.h )
 

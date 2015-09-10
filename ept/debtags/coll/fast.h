@@ -1,5 +1,5 @@
-#ifndef TAGCOLL_COLL_FAST_H
-#define TAGCOLL_COLL_FAST_H
+#ifndef EPT_DEBTAGS_COLL_FAST_H
+#define EPT_DEBTAGS_COLL_FAST_H
 
 /** \file
  * Fast index for tag data
@@ -23,51 +23,38 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <wibble/singleton.h>
-#include <ept/debtags/coll/base.h>
 #include <set>
 #include <map>
+#include <string>
+#include <vector>
 
-namespace tagcoll {
-
+namespace ept {
+namespace debtags {
 namespace coll {
-template<typename ITEM, typename TAG>
-class Fast;
-
-template<typename ITEM, typename TAG>
-struct coll_traits< Fast<ITEM, TAG> >
-{
-    typedef ITEM item_type;
-    typedef TAG tag_type;
-    typedef std::set<ITEM> itemset_type;
-    typedef std::set<TAG> tagset_type;
-};
 
 /**
  * In-memory collection with both item->tags and tag->items mappings.
  */
-template<class ITEM, class TAG>
-class Fast : public coll::Collection< Fast<ITEM, TAG> >
+class Fast
 {
 protected:
-    std::map<ITEM, std::set<TAG> > items;
-    std::map<TAG, std::set<ITEM> > tags;
+    std::map<std::string, std::set<std::string>> items;
+    std::map<std::string, std::set<std::string>> tags;
 
 #if 0
-    virtual void consumeItem(const ITEM& item, const std::set<TAG>& tags);
-    virtual void consumeItems(const std::set<ITEM>& items, const std::set<TAG>& tags);
+    virtual void consumeItem(const std::string& item, const std::set<std::string>& tags);
+    virtual void consumeItems(const std::set<std::string>& items, const std::set<std::string>& tags);
 
-    virtual std::set<ITEM> getItemsHavingTag(const TAG& tag) const;
-    virtual std::set<TAG> getTagsOfItem(const ITEM& item) const;
+    virtual std::set<std::string> getItemsHavingTag(const std::string& tag) const;
+    virtual std::set<std::string> getTagsOfItem(const std::string& item) const;
 #endif
 
 public:
-    typedef typename std::map< ITEM, std::set<TAG> >::const_iterator const_iterator;
-    typedef typename std::map< ITEM, std::set<TAG> >::iterator iterator;
-    typedef typename std::map< ITEM, std::set<TAG> >::value_type value_type;
-
-    typedef typename std::map< TAG, std::set<ITEM> >::const_iterator const_tag_iterator;
-    typedef typename std::map< TAG, std::set<ITEM> >::iterator tag_iterator;
+    typedef std::map<std::string, std::set<std::string>>::const_iterator const_iterator;
+    typedef std::map<std::string, std::set<std::string>>::iterator iterator;
+    typedef std::map<std::string, std::set<std::string>>::value_type value_type;
+    typedef std::map<std::string, std::set<std::string>>::const_iterator const_tag_iterator;
+    typedef std::map<std::string, std::set<std::string>>::iterator tag_iterator;
 
     const_iterator begin() const { return items.begin(); }
     const_iterator end() const { return items.end(); }
@@ -79,60 +66,58 @@ public:
     tag_iterator tagBegin() { return tags.begin(); }
     tag_iterator tagEnd() { return tags.end(); }
 
-    template<typename ITEMS, typename TAGS>
-    void insert(const ITEMS& items, const TAGS& tags);
-
-    void insert(const wibble::Singleton<ITEM>& item, const std::set<TAG>& tags);
-
-    void insert(const std::set<ITEM>& items, const wibble::Singleton<TAG>& tag);
+    void insert(const std::string& item, const std::set<std::string>& tags);
+    void insert(const std::set<std::string>& items, const std::string& tag);
+    void insert(const std::set<std::string>& items, const std::set<std::string>& tags);
 
     void clear() { items.clear(); tags.clear(); }
 
-    std::set<TAG> getTagsOfItem(const ITEM& item) const;
-    std::set<ITEM> getItemsHavingTag(const TAG& tag) const;
+    std::set<std::string> getTagsOfItem(const std::string& item) const;
+    std::set<std::string> getItemsHavingTag(const std::string& tag) const;
+
+    /**
+     * Get the items which are tagged with at least the tags `tags'
+     *
+     * \return
+     *   The items found, or an empty set if no items have that tag
+     */
+    std::set<std::string> getItemsHavingTags(const std::set<std::string>& tags) const;
 
     bool empty() const { return items.empty(); }
 
-    bool hasItem(const ITEM& item) const { return items.find(item) != items.end(); }
-    bool hasTag(const TAG& tag) const { return tags.find(tag) != tags.end(); }
-    std::set<ITEM> getTaggedItems() const;
-    std::set<TAG> getAllTags() const;
-    std::vector<TAG> getAllTagsAsVector() const;
+    bool hasItem(const std::string& item) const { return items.find(item) != items.end(); }
+    bool hasTag(const std::string& tag) const { return tags.find(tag) != tags.end(); }
+    std::set<std::string> getTaggedItems() const;
+    std::set<std::string> getAllTags() const;
+    std::vector<std::string> getAllTagsAsVector() const;
 
     unsigned int itemCount() const { return items.size(); }
     unsigned int tagCount() const { return tags.size(); }
 
-    /**
-     * Output all the contents of the reversed collection to an output iterator
-     */
-    template<typename OUT>
-    void outputReversed(OUT out) const;
-
 #if 0
-    void output(Consumer<ITEM, TAG>& consumer) const;
+    void output(Consumer<std::string, std::string>& consumer) const;
 #endif
 
     // tag1 implies tag2 if the itemset of tag1 is a subset of the itemset of
     // tag2
-    std::set<TAG> getTagsImplying(const TAG& tag) const;
+    std::set<std::string> getTagsImplying(const std::string& tag) const;
 
     // Return the items which have the exact tagset 'tags'
-    std::set<ITEM> getItemsExactMatch(const std::set<TAG>& tags) const;
+    std::set<std::string> getItemsExactMatch(const std::set<std::string>& tags) const;
 
-    TAG findTagWithMaxCardinality(size_t& card) const;
+    std::string findTagWithMaxCardinality(size_t& card) const;
 
     /**
      * Return the collection with only those items that have this tag, but with
      * the given tag removed
      */
-    Fast<ITEM, TAG> getChildCollection(const TAG& tag) const;
+    Fast getChildCollection(const std::string& tag) const;
 
-    void removeTag(const TAG& tag);
+    void removeTag(const std::string& tag);
     void removeTagsWithCardinalityLessThan(size_t card);
 };
 
 }
 }
-
-// vim:set ts=4 sw=4:
+}
 #endif
