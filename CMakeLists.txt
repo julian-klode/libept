@@ -5,7 +5,7 @@ include( FindDoxygen )
 
 add_custom_target(check COMMAND ${CMAKE_SOURCE_DIR}/run-check ${CMAKE_BINARY_DIR}/ept/test-ept)
 
-set( EPT_VERSION "1.0.14" )
+set( EPT_VERSION "1.1" )
 
 # Get the soversion from libapt-pkg to include in our own
 execute_process(
