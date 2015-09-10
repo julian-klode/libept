@@ -24,27 +24,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  */
 
-#include <wibble/exception.h>
 #include <ept/apt/version.h>
-
 #include <iterator>
+#include <stdexcept>
 
 class pkgCache;
 
 namespace ept {
 namespace apt {
 
-class Exception : public wibble::exception::Generic
+class Exception : public std::runtime_error
 {
-protected:
-	std::string m_message;
-
 public:
-	Exception(const std::string& context) throw ();
-	~Exception() throw () {}
-
-	virtual const char* type() const throw () { return "Apt"; }
-	virtual std::string desc() const throw () { return m_message; }
+    Exception(const std::string& message);
+    ~Exception();
 };
 
 class Apt;

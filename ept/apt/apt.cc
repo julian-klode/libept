@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  */
 
-#include <ept/apt/apt.h>
-
+#include "apt.h"
+#include "ept/utils/sys.h"
 #include <apt-pkg/error.h>
 #include <apt-pkg/init.h>
 #include <apt-pkg/progress.h>
@@ -29,12 +29,8 @@
 #include <apt-pkg/pkgcachegen.h>
 #include <apt-pkg/policy.h>
 #include <apt-pkg/cachefile.h>
-
-#include <wibble/sys/fs.h>
-
 #include <vector>
 #include <algorithm>
-
 #include <iostream>
 
 using namespace std;
@@ -44,28 +40,35 @@ namespace apt {
 
 static time_t aptTimestamp()
 {
-    namespace wfs = wibble::sys::fs;
+    time_t t1 = sys::timestamp(_config->FindFile("Dir::Cache::pkgcache"), 0);
+    time_t t2 = sys::timestamp(_config->FindFile("Dir::State::status"), 0);
 
-    time_t t1 = wfs::timestamp(_config->FindFile("Dir::Cache::pkgcache"), 0);
-    time_t t2 = wfs::timestamp(_config->FindFile("Dir::State::status"), 0);
- 
     return t1 > t2 ? t1 : t2;
 }
 
-Exception::Exception(const std::string& context) throw ()
-	: Generic(context)
+static std::string apt_annotate_error_message(const std::string& message)
 {
-	// Concatenate all errors and warnings found
-	string err;
-	while (!_error->empty())
-	{
-		bool type = _error->PopMessage(err);
-		if (type)
-			m_message += "E: " + err + "\n";
-		else
-			m_message += "W: " + err + "\n";
-   }
+    string res = message;
+    res += ":\n";
+    // Concatenate all errors and warnings found
+    string err;
+    while (!_error->empty())
+    {
+        bool type = _error->PopMessage(err);
+        if (type)
+            res += "E: " + err + "\n";
+        else
+            res += "W: " + err + "\n";
+    }
+    return res;
 }
+
+Exception::Exception(const std::string& message)
+    : std::runtime_error(apt_annotate_error_message(message))
+{
+}
+
+Exception::~Exception() {}
 
 static void aptInit ()
 {

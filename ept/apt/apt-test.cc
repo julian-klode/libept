@@ -129,9 +129,9 @@ class Tests : public TestCase
             wassert_true(record.find("Section: text") != string::npos);
 
             record = apt.rawRecord(Version("sp", "0.31415"));
-            assert_eq(record, string());
+            wassert(actual(record) == string());
 
-            assert_eq(apt.rawRecord(pkg), apt.rawRecord(apt.anyVersion(pkg)));
+            wassert(actual(apt.rawRecord(pkg)) == apt.rawRecord(apt.anyVersion(pkg)));
         });
 
         add_method("state", []() {
@@ -155,7 +155,7 @@ class Tests : public TestCase
                  i != apt.recordEnd(); ++i)
                 {
                     wassert_true((*i).size() > 8);
-                    assert_eq((*i).substr(0, 8), "Package:");
+                    wassert(actual((*i).substr(0, 8)) == "Package:");
                     ++count;
                 }
             wassert_true(count > 200);
@@ -170,7 +170,7 @@ class Tests : public TestCase
                  i != apt.recordEnd(); ++i)
                 {
                     wassert_true(i->size() > 8);
-                    assert_eq(i->substr(0, 8), "Package:");
+                    wassert(actual(i->substr(0, 8)) == "Package:");
                     ++count;
                 }
             wassert_true(count > 200);
