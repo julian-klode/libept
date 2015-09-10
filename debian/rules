@@ -14,7 +14,7 @@ override_dh_fixperms:
 
 override_dh_auto_build:
 	dh_auto_build
-	make -C $(BUILDDIR) unit
+	make -C $(BUILDDIR) check
 	make -C $(BUILDDIR) doc
 
 override_dh_auto_install:

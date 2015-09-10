@@ -1,0 +1,59 @@
+#!/bin/sh -e
+
+TOP_SRCDIR=$(readlink -f $(dirname "$0"))
+CMD=$(readlink -f "$1")
+
+## Set up the test environment
+datadir="${TOP_SRCDIR}/ept/test-data"
+TESTDIR="`mktemp -d`"
+cd "$TESTDIR"
+
+## Clean up the test environment at exit unless asked otherwise
+cleanup() {
+	test -z "$PRESERVE" && rm -rf "$TESTDIR"
+}
+trap cleanup EXIT
+
+ARCH=$(dpkg --print-architecture)
+listfile=wherever_debian_._Packages
+mkdir -p etc state/lists/partial cache debtags cache/archives/partial desktop
+sed -e s,i386,${ARCH}, < ${datadir}/packagelist > state/lists/${listfile}
+cp -a ${datadir}/etc/sources.list etc/
+sed -e s,i386,${ARCH}, < ${datadir}/dpkg-status > dpkg-status
+cp -a ${datadir}/desktop/*.desktop desktop/
+cp ${datadir}/debtags/package-tags debtags/package-tags
+cp ${datadir}/debtags/vocabulary debtags/vocabulary
+mkdir -p debtags/empty
+mkdir -p debtags/user
+mkdir -p xapian/
+
+# Try to debug the libtool executable, if present
+DIR=`dirname $CMD`
+BASE=`basename $CMD`
+if [ ! -z "$DEBUGGER" ]
+then
+        echo "Running $DEBUGGER $CMD $ARGS"
+        RES=0
+        if ! $DEBUGGER $CMD $ARGS
+        then
+                RES=$?
+                echo "Failed with result $RES"
+        fi
+else
+        echo "Running $CMD $ARGS"
+        RES=0
+        if ! $CMD $ARGS
+        then
+                RES=$?
+                echo "Failed with result $RES"
+        fi
+fi
+
+if [ ! -z "$PAUSE" ]
+then
+	echo "Post-test inspection requested."
+	echo "Exit this shell to cleanup the test environment."
+	bash
+fi
+
+exit $RES
