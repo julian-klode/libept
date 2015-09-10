@@ -23,15 +23,12 @@
  */
 
 #include <ept/config.h>
-#include <ept/axi/axi.h>
-
-#include <wibble/exception.h>
-#include <wibble/string.h>
-#include <wibble/sys/fs.h>
+#include "axi.h"
+#include "ept/utils/sys.h"
+#include "ept/utils/string.h"
 #include <memory>
 
 using namespace std;
-using namespace wibble;
 
 namespace ept {
 namespace axi {
@@ -50,8 +47,8 @@ std::string path_db()
 
 time_t timestamp()
 {
-	string tsfile = str::joinpath(m_index_dir, "update-timestamp");
-    return sys::fs::timestamp(tsfile, 0);
+    string tsfile = str::joinpath(m_index_dir, "update-timestamp");
+    return sys::timestamp(tsfile, 0);
 }
 
 

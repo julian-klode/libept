@@ -68,7 +68,7 @@ Exception::Exception(const std::string& message)
 {
 }
 
-Exception::~Exception() {}
+Exception::~Exception() noexcept {}
 
 static void aptInit ()
 {
