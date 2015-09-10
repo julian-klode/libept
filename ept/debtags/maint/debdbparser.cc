@@ -19,14 +19,9 @@
  */
 
 #include <ept/debtags/maint/debdbparser.h>
-
-#include <tagcoll/input/base.h>
-
 #include <map>
-#include <ctype.h>
-
-// using namespace std;
-using namespace tagcoll;
+#include <cctype>
+#include <system_error>
 
 namespace ept {
 namespace debtags {
@@ -35,9 +30,9 @@ namespace debtags {
 // Returns the number of '\n' encountered
 int DebDBParser::eatSpacesAndEmptyLines()
 {
-	int res = 0;
-	int c;
-	while ((c = in.nextChar()) != input::Input::Eof && (isblank(c) || c == '\n'))
+    int res = 0;
+    int c;
+    while ((c = getc(in)) != EOF && (isblank(c) || c == '\n'))
 		if (c == '\n')
 		{
 			isBOL = true;
@@ -46,10 +41,14 @@ int DebDBParser::eatSpacesAndEmptyLines()
 		} else
 			isBOL = false;
 
-	if (c == input::Input::Eof)
-		isEOF = true;
-	else
-		in.pushChar(c);
+    if (c == EOF)
+    {
+        if (ferror(in))
+            throw std::system_error(errno, std::system_category(), "cannot read from " + pathname);
+        isEOF = true;
+    }
+    else
+        ungetc(c, in);
 
 	return res;
 }
@@ -57,24 +56,26 @@ int DebDBParser::eatSpacesAndEmptyLines()
 // Get the ^([A-Za-z0-9]+) field name
 std::string DebDBParser::getFieldName()
 {
-	if (! isBOL)
-		throw exception::Parser(in, "field must start at the beginning of the line");
+    if (! isBOL)
+        throw std::runtime_error("field must start at the beginning of the line");
 
     std::string res;
 
-	int c;
-	while ((c = in.nextChar()) != input::Input::Eof && (isalnum(c) || c == '-'))
-		res += c;
+    int c;
+    while ((c = getc(in)) != EOF && (isalnum(c) || c == '-'))
+        res += c;
 
-	if (c == input::Input::Eof)
-	{
-		isEOF = true;
-		if (!res.empty())
-			throw exception::Parser(in, "field is truncated at end of file.  Last line begins with: \"" + res + "\n");
-	} else
-		in.pushChar(c);
+    if (c == EOF)
+    {
+        if (ferror(in))
+            throw std::system_error(errno, std::system_category(), "cannot read from " + pathname);
+        isEOF = true;
+        if (!res.empty())
+            throw std::runtime_error("field is truncated at end of file.  Last line begins with: \"" + res + "\n");
+    } else
+        ungetc(c, in);
 
-	return res;
+    return res;
 }
 
 // Eat the \s*: characters that divide the field name and the field
@@ -83,18 +84,20 @@ void DebDBParser::eatFieldSep()
 {
 	int c;
 
-	while ((c = in.nextChar()) != input::Input::Eof && isblank(c))
+	while ((c = getc(in)) != EOF && isblank(c))
 		;
 
 	if (c != ':')
 	{
-		if (c == input::Input::Eof)
-		{
-			isEOF = true;
-			throw exception::Parser(in, "field is truncated at end of file");
-		} else {
-			throw exception::Parser(in, std::string("invalid character `") + (char)c + "' expecting `:'");
-		}
+        if (c == EOF)
+        {
+            if (ferror(in))
+                throw std::system_error(errno, std::system_category(), "cannot read from " + pathname);
+            isEOF = true;
+            throw std::runtime_error("field is truncated at end of file");
+        } else {
+            throw std::runtime_error(std::string("invalid character `") + (char)c + "' expecting `:'");
+        }
 	}
 }
 
@@ -103,31 +106,35 @@ void DebDBParser::appendFieldBody(std::string& body)
 {
 	int c;
 
-	// Skip leading spaces
-	while ((c = in.nextChar()) != input::Input::Eof && isblank(c))
-		;
+    // Skip leading spaces
+    while ((c = getc(in)) != EOF && isblank(c))
+        ;
 
-	// Get the body part
-	for ( ; c != input::Input::Eof && c != '\n'; c = in.nextChar())
-		body += c;
+    // Get the body part
+    for ( ; c != EOF && c != '\n'; c = getc(in))
+        body += c;
 
 	// Delete trailing spaces
 	size_t end = body.find_last_not_of(" \t");
 	if (end != std::string::npos)
 		body.resize(end + 1);
 
-	if (c == input::Input::Eof)
-		isEOF = true;
-	else
-	{
-		//line++;
-		isBOL = true;
-	}
+    if (c == EOF)
+    {
+        if (ferror(in))
+            throw std::system_error(errno, std::system_category(), "cannot read from " + pathname);
+        isEOF = true;
+    }
+    else
+    {
+        //line++;
+        isBOL = true;
+    }
 }
 
 
-DebDBParser::DebDBParser(input::Input& input) :
-    in(input), isBOL(true), isEOF(false)
+DebDBParser::DebDBParser(FILE* input, const std::string& pathname)
+    : in(input), pathname(pathname), isBOL(true), isEOF(false)
 {
 	// Go at the start of the next record
 	eatSpacesAndEmptyLines();

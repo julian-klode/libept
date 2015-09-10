@@ -1,3 +1,10 @@
+libept (1.1) experimental; urgency=medium
+
+  * Removed need of tagcoll and wibble
+  * Removed popcon/ support
+
+ -- Enrico Zini <enrico@debian.org>  Thu, 10 Sep 2015 19:50:32 +0200
+
 libept (1.0.14) unstable; urgency=medium
 
   * New version that includes Matthias' changes

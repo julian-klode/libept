@@ -6,7 +6,7 @@
 /*
  * System tag database
  *
- * Copyright (C) 2003-2008  Enrico Zini <enrico@debian.org>
+ * Copyright (C) 2003-2015  Enrico Zini <enrico@debian.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,28 +23,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  */
 
-#include <ept/debtags/debtags.h>
-
-#include <tagcoll/patch.h>
-#include <tagcoll/coll/simple.h>
-#include <tagcoll/input/stdio.h>
-#include <tagcoll/TextFormat.h>
-
-#include <wibble/sys/fs.h>
-#include <wibble/string.h>
-
+#include "debtags.h"
+#include "ept/utils/sys.h"
+#include "coll/TextFormat.h"
+#include <system_error>
 #include <iostream>
 #include <sstream>
-
 #include <sys/wait.h>	// WIFEXITED WEXITSTATUS
 #include <sys/types.h>	// getpwuid, getuid
 #include <pwd.h>	// getpwuid
 #include <unistd.h>	// getuid
 
-
 using namespace std;
-using namespace tagcoll;
-using namespace wibble;
 
 namespace ept {
 namespace debtags {
@@ -53,7 +43,7 @@ Debtags::Debtags()
     : m_timestamp(0)
 {
     string src = pathname();
-    if (!sys::fs::exists(src))
+    if (!sys::exists(src))
         return;
     load(src);
 }
@@ -67,13 +57,21 @@ Debtags::Debtags(const std::string& pathname)
 void Debtags::load(const std::string& pathname)
 {
     // Read uncompressed data
-    tagcoll::input::Stdio in(pathname);
+    FILE* in = fopen(pathname.c_str(), "rt");
+    if (!in)
+        throw std::system_error(errno, std::system_category(), "cannot open " + pathname);
 
     // Read the collection
-    tagcoll::textformat::parse(in, inserter(*this));
+    try {
+        coll::textformat::parse(in, pathname, *this);
+    } catch (...) {
+        fclose(in);
+        throw;
+    }
+    fclose(in);
 
     // Read the timestamp
-    m_timestamp = sys::fs::timestamp(pathname, 0);
+    m_timestamp = sys::timestamp(pathname, 0);
 }
 
 string Debtags::pathname()
@@ -85,12 +83,3 @@ string Debtags::pathname()
 
 }
 }
-
-#include <tagcoll/coll/simple.tcc>
-#include <tagcoll/coll/fast.tcc>
-#include <tagcoll/TextFormat.tcc>
-
-// Explicit template instantiations for our stuff
-template class tagcoll::coll::Fast<std::string, std::string>;
-
-// vim:set ts=4 sw=4:
