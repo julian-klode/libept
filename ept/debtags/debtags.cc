@@ -23,10 +23,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  */
 
-#include <ept/debtags/debtags.h>
+#include "debtags.h"
+#include "ept/utils/sys.h"
 #include "coll/TextFormat.h"
-#include <wibble/sys/fs.h>
-#include <wibble/string.h>
 #include <system_error>
 #include <iostream>
 #include <sstream>
@@ -36,7 +35,6 @@
 #include <unistd.h>	// getuid
 
 using namespace std;
-using namespace wibble;
 
 namespace ept {
 namespace debtags {
@@ -45,7 +43,7 @@ Debtags::Debtags()
     : m_timestamp(0)
 {
     string src = pathname();
-    if (!sys::fs::exists(src))
+    if (!sys::exists(src))
         return;
     load(src);
 }
@@ -73,7 +71,7 @@ void Debtags::load(const std::string& pathname)
     fclose(in);
 
     // Read the timestamp
-    m_timestamp = sys::fs::timestamp(pathname, 0);
+    m_timestamp = sys::timestamp(pathname, 0);
 }
 
 string Debtags::pathname()

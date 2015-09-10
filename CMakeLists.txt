@@ -22,8 +22,6 @@ set( APT_INCLUDES "/usr/include/" CACHE STRING "apt include path" )
 set( APT_LINKDIRS "/usr/lib/" CACHE STRING "apt library path" )
 set( OPT_FLAGS "-O0 -g" CACHE STRING "optimization level" )
 
-pkg_check_modules( WIBBLE REQUIRED "libwibble >= 1.0" )
-
 add_subdirectory( ept )
 add_subdirectory( tools )
 add_subdirectory( doc )

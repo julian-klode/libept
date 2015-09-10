@@ -20,15 +20,13 @@
 
 #include "TextFormat.h"
 #include "fast.h"
-#include <wibble/exception.h>
-#include <wibble/operators.h>
+#include "operators.h"
 #include <stdexcept>
 #include <system_error>
 #include <set>
 
 using namespace std;
-using namespace wibble;
-using namespace wibble::operators;
+using namespace ept::debtags::coll::operators;
 
 namespace ept {
 namespace debtags {

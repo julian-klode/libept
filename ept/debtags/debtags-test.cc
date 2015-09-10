@@ -1,13 +1,13 @@
+#include "ept/test.h"
 #include "debtags.h"
-#include <ept/test.h>
-#include <wibble/operators.h>
+#include "coll/operators.h"
 #include <cstdio>
 
 using namespace std;
 using namespace ept;
 using namespace ept::debtags;
 using namespace ept::tests;
-using namespace wibble::operators;
+using namespace ept::debtags::coll::operators;
 
 #define testfile TEST_ENV_DIR "debtags/package-tags"
 
@@ -153,9 +153,6 @@ class Tests : public TestCase
 
             set<std::string> res = empty.getTagsOfItem("apt");
             wassert(actual(res.empty()).istrue());
-            // TODO: currently does not compile because of a bug in tagcoll
-            //res = empty.getTagsOfItems(wibble::singleton(string("apt")));
-            //assert(res.empty());
 
             res = empty.getAllTags();
             wassert(actual(res.empty()).istrue());

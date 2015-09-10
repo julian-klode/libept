@@ -18,10 +18,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <ept/debtags/vocabulary.h>
-#include <ept/debtags/maint/debdbparser.h>
-#include <wibble/exception.h>
-#include <wibble/sys/fs.h>
+#include "vocabulary.h"
+#include "maint/debdbparser.h"
+#include "ept/utils/sys.h"
 #include <system_error>
 #include <cassert>
 #include <cstring>
@@ -32,7 +31,6 @@
 #include <unistd.h>
 
 using namespace std;
-using namespace wibble;
 
 namespace ept {
 namespace debtags {
@@ -113,7 +111,7 @@ string Vocabulary::pathname()
 
 void Vocabulary::load(const std::string& pathname)
 {
-    if (!sys::fs::exists(pathname)) return;
+    if (!sys::exists(pathname)) return;
     // Read uncompressed data
     FILE* in = fopen(pathname.c_str(), "rt");
     if (!in)
@@ -126,7 +124,7 @@ void Vocabulary::load(const std::string& pathname)
         throw;
     }
     fclose(in);
-    m_timestamp = sys::fs::timestamp(pathname, 0);
+    m_timestamp = sys::timestamp(pathname, 0);
 }
 
 voc::TagData& voc::FacetData::obtainTag(const std::string& name)
@@ -271,116 +269,68 @@ void Vocabulary::write()
 
 void Vocabulary::write(const std::string& fname)
 {
-	// Build the temp file template
-	char tmpfname[fname.size() + 7];
-	strncpy(tmpfname, fname.c_str(), fname.size());
-	strncpy(tmpfname + fname.size(), ".XXXXXX", 8);
-
-	// Create and open the temporary file
-	int fd = mkstemp(tmpfname);
-	if (fd < 0)
-		throw wibble::exception::File(tmpfname, "opening file");
-
-	// Read the current umask
-	mode_t cur_umask = umask(0);
-	umask(cur_umask);
-
-	// Give the file the right permissions
-	if (fchmod(fd, 0666 & ~cur_umask) < 0)
-		throw wibble::exception::File(tmpfname, "setting file permissions");
-
-	// Pass the file descriptor to stdio
-	FILE* out = fdopen(fd, "wt");
-	if (!out)
-		throw wibble::exception::File(tmpfname, "fdopening file");
-
-	// Write out the merged vocabulary data
-	write(out);
-
-	// Flush stdio's buffers
-	fflush(out);
-
-	// Flush OS buffers
-	fdatasync(fd);
-
-	// Close the file
-	fclose(out);
-
-	// Rename the successfully written file to its final name
-	if (rename(tmpfname, fname.c_str()) == -1)
-		throw wibble::exception::System(string("renaming ") + tmpfname + " to " + fname);
+    // Serialize the merged vocabulary data
+    std::stringstream str;
+    write(str);
+    // Write it out atomically
+    sys::write_file_atomically(fname, str.str(), 0666);
 }
 
-static void writeDebStyleField(FILE* out, const string& name, const string& val) throw ()
+static void writeDebStyleField(std::ostream& out, const string& name, const string& val) throw ()
 {
-	fprintf(out, "%s: ", name.c_str());
+    out << name << ": ";
 
-	// Properly escape newlines
-	bool was_nl = false;
-	for (string::const_iterator s = val.begin(); s != val.end(); s++)
-		if (was_nl)
-			// \n\n -> \n .\n
-			if (*s == '\n')
-			{
-				fputc(' ', out);
-				fputc('.', out);
-				fputc(*s, out);
-			}
-			// \n([^ \t]) -> \n \1
-			else if (*s != ' ' && *s != '\t')
-			{
-				fputc(' ', out);
-				fputc(*s, out);
-				was_nl = false;
-			}
-			// \n[ \t] goes unchanged
-			else
-			{
-				fputc(*s, out);
-				was_nl = false;
-			}
-		else
-			if (*s == '\n')
-			{
-				fputc(*s, out);
-				was_nl = true;
-			}
-			else
-				fputc(*s, out);
+    // Properly escape newlines
+    bool was_nl = false;
+    for (string::const_iterator s = val.begin(); s != val.end(); s++)
+        if (was_nl)
+            // \n\n -> \n .\n
+            if (*s == '\n')
+                out << " ." << *s;
+            // \n([^ \t]) -> \n \1
+            else if (*s != ' ' && *s != '\t')
+            {
+                out << " " << *s;
+                was_nl = false;
+            }
+            // \n[ \t] goes unchanged
+            else
+            {
+                out << *s;
+                was_nl = false;
+            }
+        else
+            if (*s == '\n')
+            {
+                out << *s;
+                was_nl = true;
+            }
+            else
+                out << *s;
 
-	fputc('\n', out);
+    out << endl;
 }
 
-void Vocabulary::write(FILE* out)
+void Vocabulary::write(std::ostream& out)
 {
-	long start_ofs = ftell(out);
-	int facetid = 0;
-	int tagid = 0;
+    for (const auto& f: m_facets)
+    {
+        //fprintf(stderr, "Writing facet %.*s\n", PFSTR(f->first));
+        writeDebStyleField(out, "Facet", f.first);
+        for (const auto& j : f.second)
+            writeDebStyleField(out, j.first, j.second);
+        out << endl;
 
-	//fprintf(stderr, "Write\n");
-	for (std::map<std::string, voc::FacetData>::iterator f = m_facets.begin(); f != m_facets.end(); ++f)
-	{
-		//fprintf(stderr, "Writing facet %.*s\n", PFSTR(f->first));
-		writeDebStyleField(out, "Facet", f->first);
-		for (std::map<std::string, std::string>::const_iterator j = f->second.begin();
-				j != f->second.end(); j++)
-			writeDebStyleField(out, j->first, j->second);
-		fputc('\n', out);
-
-		for (std::map<std::string, voc::TagData>::iterator t = f->second.m_tags.begin();
-				t != f->second.m_tags.end(); t++)
-		{
-			//fprintf(stderr, "Writing tag %.*s\n", PFSTR(t->first));
-			writeDebStyleField(out, "Tag", t->first);
-			for (std::map<std::string, std::string>::const_iterator j = t->second.begin();
-					j != t->second.end(); j++)
-				writeDebStyleField(out, j->first, j->second);
-			fputc('\n', out);
-		}
-	}
+        for (const auto& t : f.second.m_tags)
+        {
+            //fprintf(stderr, "Writing tag %.*s\n", PFSTR(t->first));
+            writeDebStyleField(out, "Tag", t.first);
+            for (const auto& j : t.second)
+                writeDebStyleField(out, j.first, j.second);
+            out << endl;
+        }
+    }
 }
 
 }
 }
-
-// vim:set ts=4 sw=4:

@@ -2,9 +2,6 @@
 
 BUILDDIR = $(CURDIR)/debian/build
 
-libwibble_source = $(shell dpkg-query -f '$${source:Package} (= $${source:Version}), ' -W libwibble-dev)
-tagcoll2_source = $(shell dpkg-query -f '$${source:Package} (= $${source:Version}), ' -W libtagcoll2-dev)
-
 %:
 	dh $@ --buildsystem=cmake --builddirectory=$(BUILDDIR)
 
@@ -21,11 +18,6 @@ override_dh_auto_install:
 	dh_auto_install
 	dh_installdocs -plibept-dev -n $(BUILDDIR)/doc/html
 	dh_installdocs -plibept-dev -n $(BUILDDIR)/doc/libept.doxytags
-
-override_dh_gencontrol:
-	dh_gencontrol -- \
-	  -Vlibwibble:Source="$(libwibble_source)" \
-	  -Vtagcoll2:Source="$(tagcoll2_source)"
 
 debsrc:
 	debian/check_versions

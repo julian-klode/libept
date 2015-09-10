@@ -20,10 +20,10 @@
 
 #include <ept/debtags/coll/fast.h>
 #include <ept/debtags/coll/set.h>
-#include <wibble/operators.h>
+#include <ept/debtags/coll/operators.h>
 
 using namespace std;
-using namespace wibble::operators;
+using namespace ept::debtags::coll::operators;
 
 namespace ept {
 namespace debtags {
@@ -31,8 +31,6 @@ namespace coll {
 
 void Fast::insert(const std::set<std::string>& items, const std::set<std::string>& tags)
 {
-    using namespace wibble::operators;
-
     if (tags.empty())
         return;
 
@@ -42,8 +40,6 @@ void Fast::insert(const std::set<std::string>& items, const std::set<std::string
 
 void Fast::insert(const std::string& item, const std::set<std::string>& tags)
 {
-    using namespace wibble::operators;
-
     if (tags.empty())
         return;
 
@@ -66,8 +62,6 @@ void Fast::insert(const std::string& item, const std::set<std::string>& tags)
 
 void Fast::insert(const std::set<std::string>& items, const std::string& tag)
 {
-    using namespace wibble::operators;
-
     for (typename std::set<std::string>::const_iterator i = items.begin();
             i != items.end(); ++i)
     {
@@ -96,7 +90,6 @@ std::set<std::string> Fast::getItemsHavingTag(const std::string& tag) const
 
 std::set<std::string> Fast::getItemsHavingTags(const std::set<std::string>& tags) const 
 {
-    using namespace wibble::operators;
     if (tags.empty())
         return std::set<std::string>();
 

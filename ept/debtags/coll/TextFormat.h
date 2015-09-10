@@ -1,5 +1,5 @@
-#ifndef TAGCOLL_TEXTFORMAT_H
-#define TAGCOLL_TEXTFORMAT_H
+#ifndef EPT_DEBTAGS_COLL_TEXTFORMAT_H
+#define EPT_DEBTAGS_COLL_TEXTFORMAT_H
 
 /** \file
  * Serialize and deserialize a tagged collection to a text file
@@ -23,10 +23,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  */
 
-#include <wibble/mixin.h>
-#include <wibble/empty.h>
-#include <wibble/singleton.h>
 #include <cstdio>
+#include <string>
 
 //#define TRACE_PARSE
 

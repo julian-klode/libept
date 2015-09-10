@@ -29,6 +29,7 @@
 #include <set>
 #include <map>
 #include <cstdio>
+#include <iosfwd>
 
 namespace ept {
 namespace debtags {
@@ -155,7 +156,12 @@ protected:
 
 	voc::FacetData& obtainFacet(const std::string& name);
 	voc::TagData& obtainTag(const std::string& fullname);
-	
+
+    /**
+     * Write the vocabulary data to the given output stream
+     */
+    void write(std::ostream& out);
+
 public:
 	/**
 	 * Instantiate the Debtags vocabulary
@@ -239,11 +245,6 @@ public:
 	 * Atomically write the vocabulary data to the given file
 	 */
 	void write(const std::string& fname);
-
-	/**
-	 * Write the vocabulary data to the given output stream
-	 */
-	void write(FILE* out);
 
     /**
      * Return the default pathname for the vocabulary.
