@@ -1,3 +1,10 @@
+libept (1.1+nmu2) unstable; urgency=medium
+
+  * Non-maintainer upload
+  * Upload to unstable for APT 1.1 transition.
+
+ -- Julian Andres Klode <jak@debian.org>  Fri, 27 Nov 2015 14:35:59 +0100
+
 libept (1.1+nmu1) experimental; urgency=medium
 
   * Non-maintainer upload with permission from the maintainer.
