@@ -37,6 +37,8 @@ Section: libs
 Architecture: any
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Replaces: libept1.4.16 (= 1.0.14+b2)
+Breaks: libept1.4.16 (= 1.0.14+b2)
 Description: High-level library for managing Debian package information
  The library defines a very minimal framework in which many sources of data
  about Debian packages can be implemented and queried together.
