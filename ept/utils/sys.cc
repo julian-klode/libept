@@ -12,6 +12,11 @@
 #include <fcntl.h>
 #include <alloca.h>
 
+/* Work around non-Linux systems */
+#ifndef O_PATH
+#define O_PATH 0
+#endif
+
 namespace {
 
 inline const char* to_cstring(const std::string& s)
